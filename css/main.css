@@ -1,0 +1,77 @@
+
+
+/* ==========================================================================
+   d3
+   ========================================================================== */
+
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+circle.self-loop {
+  display: none;
+}
+
+circle.ctsa-1 {
+  fill: #bcee68;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+circle.centrality_leader-0 {
+  fill: #800000;
+  stroke: #800000;
+  stroke-width: 3px;
+}
+
+path.link {
+  fill: none;
+  stroke: #666666;
+  stroke-width: 1.5px;
+}
+
+path.link.self-loop {
+  fill: none;
+  stroke: red;
+  stroke-width: 1px;
+}
+
+path.link.green {
+  stroke: green;
+}
+
+path.link.dashed {
+  stroke-dasharray: 0,2 1;
+}
+
+text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+text.self-loop {
+  display: none;
+}
+
+text.shadow {
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-opacity: .8;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
