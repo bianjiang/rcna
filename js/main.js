@@ -15,8 +15,8 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
             width: 1200,
             height: 1200,
             charge: -80,
-            gravity: 0.30,
-            linkDistance: 50,
+            gravity: 0.10,
+            linkDistance: 30,
             selfLoopLinkDistance: 20,
             nodeOpacity: .9,
             linkOpacity: .85,
@@ -28,7 +28,7 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
             colorField: "color",
             startingColor: "#ccc",
             endingColor: "#BD0026"
-        }, opts = $.extend({}, default_opts, opts);
+    }, opts = $.extend({}, default_opts, opts);
 
 	d3.json('data/' + activeNetwork + ".json", function(error, graph) {
 
@@ -119,7 +119,7 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 	    })
 	    .call(force.drag)
 	    .attr("class",function(d){
-	    	var c = d.type;
+	    	var c = d.type || '';
 	    	if (d.ctsa) c = c + ' ctsa';
 	    	for (var key in d) {
 	    		if(!isInExcludingList(key, ignoredNodeAttributes)) {
@@ -199,25 +199,64 @@ var parseNavText = function parseNavText(text) {
 
 	var s = text.split('-');
 	var ret = text;
-	if (s.length == 2) {
-		var sy = $.trim(text.split('-')[0]);
-		var ey = $.trim(text.split('-')[1]);
-		if (sy == ey) {
-			ret = sy;
-		}
+
+	var sy = $.trim(text.split('-')[0]);
+	var ey = $.trim(text.split('-')[1]);
+	if (sy == ey) {
+		s.splice(0,1);
+		ret = s.join('-');
 	}
 
 	return ret;
 };
 
-var networkfiles = ['2005-2005', '2006-2006', '2007-2007', '2008-2008', '2009-2009', '2009-2009-simplified', '2010-2010', '2011-2011', '2012-2012', '2005-2008', '2009-2012'];
+/*
+var default_opts = {
+            where: "#canvas",
+            r: 10,
+            width: 1200,
+            height: 1200,
+            charge: -80,
+            gravity: 0.10,
+            linkDistance: 30,
+            selfLoopLinkDistance: 20,
+            nodeOpacity: .9,
+            linkOpacity: .85,
+            fadedOpacity: .1,
+            mousedOverNodeOpacity: .9,
+            mousedOverLinkOpacity: .9,
+            nodeStrokeWidth: 1.5,
+            nodeStrokeColor: "#333",
+            colorField: "color",
+            startingColor: "#ccc",
+            endingColor: "#BD0026"
+        }
+*/
+
+var default_opts = {
+	gravity: 0.25
+};
+
+var networkfiles = {
+	'2005-2005': default_opts,
+	'2006-2006': default_opts,
+	'2007-2007': default_opts,
+	'2008-2008': default_opts,
+	'2009-2009': default_opts,
+	'2009-2009-simplified': {
+		gravity: 0.10
+	},
+	'2010-2010': default_opts,
+	'2011-2011': default_opts,
+	'2012-2012': default_opts,
+	'2005-2008': default_opts,
+	'2009-2012': default_opts
+};
 var createNav = function createNavBar(activeNetwork) {
 
 		$ul = $('<ul class="breadcrumb"></ul>');
 
-		for(var i = 0; i < networkfiles.length; i++){
-
-			current = networkfiles[i];
+		$.each(networkfiles, function(current){
 
 			$li = $('<li></li>');
 			if(activeNetwork == current){
@@ -227,7 +266,7 @@ var createNav = function createNavBar(activeNetwork) {
 					var y = $(this).attr('tag');
 					$('#canvas > svg').hide('slow', function(){
 						$('#canvas > svg').remove();
-						d3_draw(y);
+						d3_draw(y, networkfiles[y]);
 						createNav(y);
 					});				
 				});
@@ -235,8 +274,8 @@ var createNav = function createNavBar(activeNetwork) {
 			}
 			$li.append($('<span class="divider">/</span>'));
 			$ul.append($li);
-			
-		}
+		});
+
 		$('#nav-bar').html($ul);
 	};
 
@@ -247,7 +286,7 @@ $(document).ready(function(){
 
 	createNav(activeNetwork);
 
-	d3_draw(activeNetwork);
+	d3_draw(activeNetwork, networkfiles[activeNetwork]);
 
 	
 

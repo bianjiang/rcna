@@ -21,6 +21,10 @@ circle.self-loop {
   display: none;
 }
 
+circle.ctsa-1 {
+  fill: #ADFF2F;
+}
+
 path.link {
   fill: none;
   stroke: #666666;
