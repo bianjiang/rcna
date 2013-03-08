@@ -93,17 +93,17 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 	    .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
 
 
-	    var mouseover_func = function mouseover_func(e) {
-	   		return circle.style("opacity", function (t) {
-	            return isConnected(e, t) ? opts.mousedOverNodeOpacity : opts.fadedOpacity
-	        }), path.style("opacity", function (t) {
-	        	return t.source === e || t.target === e ? opts.mousedOverLinkOpacity : opts.fadedOpacity;       
+	    var mouseover_func = function mouseover_func(node) {
+	   		return circle.style("opacity", function (otherNode) {
+	            return isConnected(node, otherNode) ? opts.mousedOverNodeOpacity : opts.fadedOpacity
+	        }), path.style("opacity", function (p) {
+	        	return p.source === node || p.target === node ? opts.mousedOverLinkOpacity : opts.fadedOpacity;       
 	        });
 	   	};
 
-	   	var mouseout_func = function mouseout_func(e) {
-	   		return circle.style("fill", function (e) {
-	   			var c = e[opts.colorField] || -1;
+	   	var mouseout_func = function mouseout_func(node) {
+	   		return circle.style("fill", function (node) {
+	   			var c = node.ctsa ? '#ADFF2F' : node[opts.colorField] || -1;
                 return colors(c);
             }).attr("r", function(d) {
 	    	return d.ctsa == 1?opts.r * 2:opts.r;
@@ -129,10 +129,10 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 	    	
 	    	return c;
 	    })
-	    .on("mouseover", function (e) {
-            return mouseover_func(e);
-        }).on("mouseout", function (e) {
-            return mouseout_func(e);
+	    .on("mouseover", function (node) {
+            return mouseover_func(node);
+        }).on("mouseout", function (node) {
+            return mouseout_func(node);
         });
 
 	    var text = svg.append("svg:g").selectAll("g")
