@@ -1,20 +1,41 @@
-
+(function () {
 var isInExcludingList = function isInExcludingList(element, list){
     return ($.inArray(element, list) > -1);
 }
 
 var ignoredNodeAttributes = ['x', 'y', 'index', 'weight', 'px', 'py', 'type'];
 
-var d3_draw = function d3_draw(activeYear) {
-	var w = 1200,
-    h = 900,
-    r = 6,
-    z = d3.scale.category20c();
+var d3_draw = function d3_draw(activeNetwork, opts) {
 
-	d3.json(activeYear + ".json", function(error, graph) {
+    var z = d3.scale.category20c();
+
+    var default_opts = {
+            where: "#canvas",
+            r: 10,
+            width: 1200,
+            height: 1200,
+            charge: -80,
+            gravity: 0.30,
+            linkDistance: 50,
+            selfLoopLinkDistance: 20,
+            nodeOpacity: .9,
+            linkOpacity: .85,
+            fadedOpacity: .1,
+            mousedOverNodeOpacity: .9,
+            mousedOverLinkOpacity: .9,
+            nodeStrokeWidth: 1.5,
+            nodeStrokeColor: "#333",
+            colorField: "color",
+            startingColor: "#ccc",
+            endingColor: "#BD0026"
+        }, opts = $.extend({}, default_opts, opts);
+
+	d3.json('data/' + activeNetwork + ".json", function(error, graph) {
+
+		var link_tracks = {}, colorTypes = {};
 		// Compute the distinct nodes from the links.
 		graph.links.forEach(function(link) {
-			var t = 'basic';
+		  var t = 'basic';
 		  if (link.source == link.target) {
 		  	// These are for rendering self reference.  The 'null' vertex is a secret extra vertex.
 		  	t = 'self-loop';
@@ -26,26 +47,44 @@ var d3_draw = function d3_draw(activeYear) {
 		  // add the secret nodes, if link.source doesn't exist
 		  link.source = graph.nodes[link.source] || (graph.nodes[link.source] = {name: link.source, type: t});
 		  link.target = graph.nodes[link.target]; // || (graph.nodes[link.target] = {name: link.target});
+		  
 
-		  link.source.type = t;
+
+		  link_tracks[link.source.index + "," + link.target.index] = 1;
+
+		  // figure out the number of distince color types we need...
+		  if (typeof link.source[opts.colorField] != 'undefined' ) {
+
+		  	colorTypes[link.source[opts.colorField]] = 1;
+		  }		  
 		});
+
+		var c = [-1];
+		for(key in colorTypes) {
+			c.push(key);
+		}
+
+		// generate color chart...
+		var colors = d3.scale.linear().domain([d3.min(c), d3.max(c)]).range([opts.startingColor, opts.endingColor]);
+
+		var isConnected = function isConnected(e, t){
+			return link_tracks[e.index + "," + t.index] || link_tracks[t.index + "," + e.index] || e.index === t.index;
+		};
 
 		var force = d3.layout.force()
 		.nodes(d3.values(graph.nodes))
-      .links(graph.links)
-	    .linkStrength(function(d) { return (d.type == "self-loop"? 1 : 0.5); })
-	    .size([w, h])
-	    .linkDistance(function(d) { return (d.type == "self-loop"? 5 : 10); })
-	    .gravity(0.30)
-    	.charge(-80)
-      .on("tick", tick)
-      .start();
+	      .links(graph.links)
+		    .linkStrength(function(d) { return (d.type == "self-loop"? 1 : 0.5); })
+		    .size([opts.width, opts.height])
+		    .linkDistance(function(d) { return (d.type == "self-loop"? opts.selfLoopLinkDistance : opts.linkDistance); })
+		    .gravity(opts.gravity)
+	    	.charge(opts.charge)
+	      .on("tick", tick)
+	      .start();
 
 	    var svg = d3.select("#canvas").append("svg:svg")
-	    .attr("width", w)
-	    .attr("height", h);
-
-
+	    .attr("width", opts.width)
+	    .attr("height", opts.height);
 
 	    var path = svg.append("svg:g").selectAll("path")
 	    .data(force.links())
@@ -53,11 +92,30 @@ var d3_draw = function d3_draw(activeYear) {
 	    .attr("class", function(d) { return "link " + d.type; })
 	    .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
 
+
+	    var mouseover_func = function mouseover_func(e) {
+	   		return circle.style("opacity", function (t) {
+	            return isConnected(e, t) ? opts.mousedOverNodeOpacity : opts.fadedOpacity
+	        }), path.style("opacity", function (t) {
+	        	return t.source === e || t.target === e ? opts.mousedOverLinkOpacity : opts.fadedOpacity;       
+	        });
+	   	};
+
+	   	var mouseout_func = function mouseout_func(e) {
+	   		return circle.style("fill", function (e) {
+	   			var c = e[opts.colorField] || -1;
+                return colors(c);
+            }).attr("r", function(d) {
+	    	return d.ctsa == 1?opts.r * 2:opts.r;
+	    }).style("stroke", opts.nodeStrokeColor).style("stroke-width", opts.nodeStrokeWidth).call(force.drag).style("opacity", opts.nodeOpacity), path.style("opacity", opts.linkOpacity);
+	   	}
+
+
 	    var circle = svg.append("svg:g").selectAll("circle")
     	.data(force.nodes())
 	  	.enter().append("svg:circle")
 	    .attr("r", function(d) {
-	    	return d.ctsa?r * 2:r;
+	    	return d.ctsa == 1?opts.r * 2:opts.r; // need to figure out a better way to do this...
 	    })
 	    .call(force.drag)
 	    .attr("class",function(d){
@@ -70,7 +128,12 @@ var d3_draw = function d3_draw(activeYear) {
 	    	}
 	    	
 	    	return c;
-	    });
+	    })
+	    .on("mouseover", function (e) {
+            return mouseover_func(e);
+        }).on("mouseout", function (e) {
+            return mouseout_func(e);
+        });
 
 	    var text = svg.append("svg:g").selectAll("g")
 	    .data(force.nodes())
@@ -132,18 +195,36 @@ var d3_draw = function d3_draw(activeYear) {
 	});
 };
 
-var createNav = function createNavBar(activeYear) {
+var parseNavText = function parseNavText(text) {
+
+	var s = text.split('-');
+	var ret = text;
+	if (s.length == 2) {
+		var sy = $.trim(text.split('-')[0]);
+		var ey = $.trim(text.split('-')[1]);
+		if (sy == ey) {
+			ret = sy;
+		}
+	}
+
+	return ret;
+};
+
+var networkfiles = ['2005-2005', '2006-2006', '2007-2007', '2008-2008', '2009-2009', '2009-2009-simplified', '2010-2010', '2011-2011', '2012-2012', '2005-2008', '2009-2012'];
+var createNav = function createNavBar(activeNetwork) {
 
 		$ul = $('<ul class="breadcrumb"></ul>');
 
-		for(var i = 2005; i < 2013; i++){
+		for(var i = 0; i < networkfiles.length; i++){
+
+			current = networkfiles[i];
+
 			$li = $('<li></li>');
-			if(activeYear == i){
-				$li.addClass('active');
-				$li.text(i);
+			if(activeNetwork == current){
+				$li.text(parseNavText(current));
 			}else{
-				$a = $('<a href="#">' + i + '</a>').click(function(){
-					var y = $(this).text();
+				$a = $('<a href="#" tag="' + current + '">' + parseNavText(current) + '</a>').click(function(){
+					var y = $(this).attr('tag');
 					$('#canvas > svg').hide('slow', function(){
 						$('#canvas > svg').remove();
 						d3_draw(y);
@@ -162,13 +243,15 @@ var createNav = function createNavBar(activeYear) {
 
 $(document).ready(function(){
 
-	activeYear = 2005;
+	activeNetwork = '2009-2009-simplified';
 
-	createNav(activeYear);
+	createNav(activeNetwork);
 
-	d3_draw(activeYear);
+	d3_draw(activeNetwork);
 
 	
 
 });
+
+}).call(this);
 

@@ -3,6 +3,12 @@
 /* ==========================================================================
    d3
    ========================================================================== */
+svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0px auto;
+}
 
 
 circle {
@@ -15,22 +21,10 @@ circle.self-loop {
   display: none;
 }
 
-circle.ctsa-1 {
-  fill: #bcee68;
-  stroke: #333;
-  stroke-width: 1.5px;
-}
-
-circle.centrality_leader-0 {
-  fill: #800000;
-  stroke: #800000;
-  stroke-width: 3px;
-}
-
 path.link {
   fill: none;
   stroke: #666666;
-  stroke-width: 1.5px;
+  stroke-width: 2px;
 }
 
 path.link.self-loop {
@@ -60,6 +54,18 @@ text.shadow {
   stroke: #fff;
   stroke-width: 3px;
   stroke-opacity: .8;
+}
+
+.lightblue {
+  color: lightblue;
+}
+
+.lightpink {
+  color: lightpink;
+}
+
+.description {
+  font-style: italic;  
 }
 
 
