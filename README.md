@@ -1,4 +1,4 @@
-research-collaboration-network-analysis
+Research Collaboration Network Analysis
 =======================================
 
 Network analysis of research collaborations based on UAMS's ORSP's grant database.
