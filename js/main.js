@@ -177,21 +177,21 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 			        b*dr*Math.sin(a+da) + "," + b*dr*Math.cos(a+da) + " " +  " T " + d.target.x + "," + d.target.y;      
 			    }
 			})
-.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+			.attr("x1", function(d) { return d.source.x; })
+        	.attr("y1", function(d) { return d.source.y; })
+	        .attr("x2", function(d) { return d.target.x; })
+	        .attr("y2", function(d) { return d.target.y; });
 
-			circle.attr("transform", function(d) {
-				return "translate(" + d.x + "," + d.y + ")";
-			});/*
-			.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
-        	.attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
-			*/
-			text.attr("transform", function(d) {
-				return "translate(" + d.x + "," + d.y + ")";
-			});
-		}
+				circle.attr("transform", function(d) {
+					return "translate(" + d.x + "," + d.y + ")";
+				});/*
+				.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
+	        	.attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
+				*/
+				text.attr("transform", function(d) {
+					return "translate(" + d.x + "," + d.y + ")";
+				});
+			}
 	});
 };
 
@@ -238,20 +238,23 @@ var default_opts = {
 };
 
 var networkfiles = {
-	'2005-2005': default_opts,
 	'2006-2006': default_opts,
 	'2007-2007': default_opts,
 	'2008-2008': default_opts,
-	'2009-2009': default_opts,
-	'2009-2009-simplified': {
-		gravity: 0.10
-	},
+	'2009-2009': default_opts,	
 	'2010-2010': default_opts,
 	'2011-2011': default_opts,
 	'2012-2012': default_opts,
-	'2005-2008': default_opts,
-	'2009-2012': default_opts
+	'2006-2009': default_opts,
+	'2006-2009-simplified': {
+		gravity: 0.15
+	},
+	'2010-2012': default_opts,
+	'2010-2012-simplified': {
+		gravity: 0.15
+	},
 };
+
 var createNav = function createNavBar(activeNetwork) {
 
 		$ul = $('<ul class="breadcrumb"></ul>');
@@ -277,12 +280,12 @@ var createNav = function createNavBar(activeNetwork) {
 		});
 
 		$('#nav-bar').html($ul);
-	};
+};
 
 
 $(document).ready(function(){
 
-	activeNetwork = '2009-2009-simplified';
+	activeNetwork = '2010-2012-simplified';
 
 	createNav(activeNetwork);
 
