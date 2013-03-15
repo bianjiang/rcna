@@ -1,9 +1,11 @@
 Research Collaboration Network Analysis
 =======================================
 
-Network analysis of research collaborations based on UAMS's ORSP's grant database.
+Network Analysis (SNA) of research collaborations based on UAMS ORSP's grant dataset.
 
-Visualization of the [networks](http://bianjiang.github.com/rcna/).
+I am in the process of cleaning up the old code reporsitory at bitbucket.org and moving to github. 
+
+But meanwhile, you can see a visualization of the [networks](http://bianjiang.github.com/rcna/).
 
 ---------------------------------------
 
