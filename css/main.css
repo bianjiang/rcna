@@ -21,9 +21,9 @@ circle.self-loop {
   display: none;
 }
 
-circle.ctsa-1 {
+/*circle.ctsa-1 {
   fill: #ADFF2F;
-}
+}*/
 
 path.link {
   fill: none;
@@ -72,6 +72,32 @@ text.shadow {
   font-style: italic;  
 }
 
+.legend-row {
+  margin: 0 0 20px 0;
+}
+
+.legend {
+  text-align: center;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+}
+
+.bg-gray {  
+  background-color: rgba(192, 192, 192, 0.5);
+}
+
+.bg-green {
+  background-color: rgba(173,255,47, 0.5);
+}
+
+.bg-purple {
+  background-color: rgba(128,0,128, 0.5);
+}
+
+.bg-yellow {
+  background-color: rgba(255,255,0,0.5);
+}
 
 
 

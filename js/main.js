@@ -5,6 +5,7 @@ var isInExcludingList = function isInExcludingList(element, list){
 
 var ignoredNodeAttributes = ['x', 'y', 'index', 'weight', 'px', 'py', 'type'];
 
+
 var d3_draw = function d3_draw(activeNetwork, opts) {
 
     var z = d3.scale.category20c();
@@ -59,13 +60,30 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 		  }		  
 		});
 
-		var c = [-1];
-		for(key in colorTypes) {
-			c.push(key);
-		}
+		// var c = [-1];
+		// for(key in colorTypes) {
+		// 	c.push(key);
+		// }
 
 		// generate color chart...
-		var colors = d3.scale.linear().domain([d3.min(c), d3.max(c)]).range([opts.startingColor, opts.endingColor]);
+		//var colors = d3.scale.linear().domain([d3.min(c), d3.max(c)]).range([opts.startingColor, opts.endingColor]);
+
+		var getColor = function getColor(node){
+			//console.log(node.role);
+			//console.log(node[opts.colorField]);
+			var c = '#cccccc';//node[opts.colorField];//node.ctsa ? '#ADFF2F' : node[opts.colorField] || -1;
+			if(node.ctsa && node.role != 'Principal Investigator') {
+				c = '#ADFF2F';
+			}else if(node.ctsa && node.role == 'Principal Investigator'){
+				c = '#FFFF00';
+			}else if(!node.ctsa && node.role == 'Principal Investigator'){
+				c = '#800080';
+			}
+			//console.log(colors(c));
+			return c;
+		}
+
+		
 
 		var isConnected = function isConnected(e, t){
 			return link_tracks[e.index + "," + t.index] || link_tracks[t.index + "," + e.index] || e.index === t.index;
@@ -103,10 +121,9 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 
 	   	var mouseout_func = function mouseout_func(node) {
 	   		return circle.style("fill", function (node) {
-	   			var c = node.ctsa ? '#ADFF2F' : node[opts.colorField] || -1;
-                return colors(c);
+                return getColor(node);
             }).attr("r", function(d) {
-	    	return d.ctsa == 1?opts.r * 2:opts.r;
+	    	return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r;
 	    }).style("stroke", opts.nodeStrokeColor).style("stroke-width", opts.nodeStrokeWidth).call(force.drag).style("opacity", opts.nodeOpacity), path.style("opacity", opts.linkOpacity);
 	   	}
 
@@ -115,7 +132,7 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
     	.data(force.nodes())
 	  	.enter().append("svg:circle")
 	    .attr("r", function(d) {
-	    	return d.ctsa == 1?opts.r * 2:opts.r; // need to figure out a better way to do this...
+	    	return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
 	    })
 	    .call(force.drag)
 	    .attr("class",function(d){
@@ -128,7 +145,9 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 	    	}
 	    	
 	    	return c;
-	    })
+	    }).style("fill", function (node) {
+                return getColor(node);
+            })
 	    .on("mouseover", function (node) {
             return mouseover_func(node);
         }).on("mouseout", function (node) {
