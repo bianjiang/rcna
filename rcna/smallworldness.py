@@ -27,12 +27,13 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 # in the paper we analyze the largest component
 def average_shortest_path_length(g):
 
-	ap = 0.0
-	cnt = 0
-	for v in g.shortest_paths(mode=igraph.ALL):
-		ap += float(sum(v))/(len(v) - 1)
+	# ap = 0.0
+	# cnt = 0
+	# for v in g.shortest_paths(mode=igraph.ALL):
+	# 	ap += float(sum(v))/(len(v) - 1)
 		
-	return float(ap)/len(g.vs)
+	# return float(ap)/len(g.vs)
+	return g.average_path_length(directed = False, unconn=False)
 
 def clustering_coefficient(g):
 
@@ -45,8 +46,8 @@ def smallworldness_measure(g, rg):
 	C_g = clustering_coefficient(g)
 	C_r = clustering_coefficient(rg)
 
-	L_g = average_shortest_path_length(g)
-	L_r = rg.average_path_length(directed = False, unconn=False)
+	L_g = average_shortest_path_length(g) #average_shortest_path_length(g)
+	L_r = average_shortest_path_length(rg)
 
 	gamma_ = C_g / C_r 
 	lambda_ = L_g / L_r 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
 
 	network = load_network_for(range(2006,2010))
 
-	s, ss = smallworldness(network, rep = 100)
+	s, ss = smallworldness(network, rep = 1000)
 
 	logger.info("Small-world-ness (2006 - 2009): %f"%s)
 
@@ -98,8 +99,6 @@ if __name__ == '__main__':
 	network = load_network_for(range(2010,2013))
 
 	s, ss = smallworldness(network, rep = 1000)
-
-	logger.info(ss)
 
 	logger.info("Small-world-ness (2010 - 2013): %f"%s)
 
