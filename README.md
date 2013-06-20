@@ -10,17 +10,17 @@ Analyses of research collaboration networks based on the UAMS awarded research g
 Statistics on the dataset
 ---------------------------------------
 | Fiscal Year | Number of Awarded Grants | Number of Investigators | Number of CTSA Investigators | Number of CTSA Supported Investigators |
-| --- | --- | --- | --- | --- | 
+| === | --- | --- | --- | --- | 
 | 2006	| 477 | 326 | N/A | N/A |
 | 2007	| 479 | 409 | N/A | N/A |
 | 2008	| 601 | 469 | N/A | N/A |
 | 2009	| 516 | 414 | N/A | N/A |
-**| 2006 -- 2009 | 2073 | 759 | N/A | N/A |**
-| --- | --- | --- | --- | --- | 
+| ** 2006 -- 2009 ** | ** 2073 ** | ** 759 ** | ** N/A ** | ** N/A ** |
+| === |
 | 2010	| 603 | 431 | 34 | 114 |
 | 2011	| 538 | 443 | 26 | 115 |
 | 2012	| 549 | 434 | 23 | 322 |
-**| 2010 -- 2012| 1690 | 650 | 34 | 551 |**
+| ** 2010 -- 2012 ** | ** 1690 ** | ** 650 ** | ** 34 ** | ** 551 ** |
 
 License
 =======================================
