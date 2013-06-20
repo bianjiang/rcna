@@ -3,9 +3,9 @@ Research Collaboration Network Analysis
 
 Analyses of research collaboration networks based on the UAMS awarded research grants dataset collected from July 2005 to June 2013.
 
-*I am in the process of cleaning up the old code reporsitory at bitbucket.org and moving to github. *
+* I am in the process of cleaning up the old code reporsitory at bitbucket.org and moving to github.
 
-*But meanwhile, you can see a visualization of the [networks](http://bianjiang.github.com/rcna/) built using [d3](http://d3js.org/).*
+* But meanwhile, you can see a visualization of the [networks](http://bianjiang.github.com/rcna/) built using [d3](http://d3js.org/).
 
 Statistics on the dataset
 ---------------------------------------
