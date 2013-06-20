@@ -272,6 +272,12 @@ var networkfiles = {
 	'2010-2012-simplified': {
 		gravity: 0.15
 	},
+	'2006-2009-largest-component': {
+		gravity: 0.15
+	},
+	'2010-2012-largest-component': {
+		gravity: 0.15
+	}
 };
 
 var createNav = function createNavBar(activeNetwork) {
