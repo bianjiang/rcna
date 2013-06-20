@@ -53,7 +53,8 @@ def draw(g, filename):
 	igraph.plot(g, filename, **visual_style)
 
 def draw_g(budgetYears):
-	network = GrantResearcherNetwork.read(budgetYears)	
+	network = load_network_for(range(2006,2010))
+	
 	g = network.g.copy()
 	#g = g.simplify(multiple=True, loops=True,combine_edges=sum)
 
@@ -65,17 +66,18 @@ def draw_g(budgetYears):
 	startBudgetYear = budgetYears[0]
 	endBudgetYear = budgetYears[-1]
 
-	filename = '%s/result/%s-%s-%d.png'%(root_folder(),startBudgetYear, endBudgetYear,len(g.vs))
+	filename = '%s/figures/%s-%s-%d.png'%(root_folder(),startBudgetYear, endBudgetYear,len(g.vs))
 	#logger.info(g.summary())
 	draw(g, filename)
 
-	gs = g.decompose(mode=igraph.WEAK, minelements=25)
+	gl = GrantResearcherNetwork.largest_component(g)
+	
+	filename = '%s/figures/%s-%s-%d-largest-component.png'%(root_folder(),startBudgetYear, endBudgetYear,len(gl.vs))
 
-	for g in gs:	
-		# startBudgetYear = budgetYears[0]
-		# endBudgetYear = budgetYears[-1]
+	draw(gl, filename)
 
-		filename = '%s/result/%s-%s-%d-largest-component.png'%(root_folder(),startBudgetYear, endBudgetYear,len(g.vs))
-		#logger.info(g.summary())
-		
-		draw(g, filename)
+if __name__ == '__main__':
+
+	draw_g(range(2006,2010))
+
+	draw_g(range(2010,2013))

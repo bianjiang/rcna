@@ -114,7 +114,7 @@ class GrantResearcherNetwork(object):
 	#get the largest component (the component with the most connected nodes)
 	@staticmethod
 	def largest_component(g):
-		GrantResearcherNetwork.simplify(g)
+		g = GrantResearcherNetwork.simplify(g)
 
 		g_ = None
 		vs_ = 0
@@ -150,19 +150,6 @@ class GrantResearcherNetwork(object):
 	  		json.dump(d3_results, outfile)
 
 	  	logger.info('convert to d3 json into: %s'%filename)
-
-
-
-		
-
-
-
-		
-
-
-
-
-			
 
 
 
