@@ -21,29 +21,31 @@ import igraph
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
+def vertex_colors(g):
+	colors = []
+	for v in g.vs:
+		# if v['ctsa'] == 0 and v['role'] != 'Principal Investigator':
+		# 	colors.append('gray')
+		# elif v['ctsa'] == 0 and v['role'] == 'Principal Investigator':
+		# 	colors.append('purple')
+		# elif v['ctsa'] == 1 and v['role'] != 'Principal Investigator':
+		# 	colors.append('green')
+		# else:
+		# 	colors.append('yellow')
+		if v['ctsa'] == 0:
+			colors.append('gray')
+		else:
+			colors.append('green')
+	return colors
+
 
 def draw(g, filename):
 	layout = g.layout('kk')
 
-	color_dict = {0: 'red', 1: 'green', 2: 'yellow', 3:'purple'}
-
 	visual_style = {}
-	visual_style['vertex_size'] = 20
+	visual_style['vertex_size'] = 30
 
-	colors = []
-	for v in g.vs:
-		if v['ctsa'] == 0 and v['role'] != 'Principal Investigator':
-			colors.append('gray')
-		elif v['ctsa'] == 0 and v['role'] == 'Principal Investigator':
-			colors.append('purple')
-		elif v['ctsa'] == 1 and v['role'] != 'Principal Investigator':
-			colors.append('green')
-		else:
-			colors.append('yellow')
-
-
-
-	visual_style['vertex_color'] = colors #[color_dict[int(ctsa)] for ctsa in g.vs['ctsa']]
+	visual_style['vertex_color'] = vertex_colors(g) #[color_dict[int(ctsa)] for ctsa in g.vs['ctsa']]
 	#visual_style['vertex_label'] = g.vs['name']
 	visual_style['edge_width'] = [e_weight for e_weight in g.es['weight']]
 	visual_style['layout'] = layout
@@ -53,7 +55,7 @@ def draw(g, filename):
 	igraph.plot(g, filename, **visual_style)
 
 def draw_g(budgetYears):
-	network = load_network_for(range(2006,2010))
+	network = load_network_for(budgetYears)
 	
 	g = network.g.copy()
 	#g = g.simplify(multiple=True, loops=True,combine_edges=sum)
@@ -61,7 +63,7 @@ def draw_g(budgetYears):
 	# convert to undirected
 	#g.to_undirected(combine_edges=sum)
 
-	GrantResearcherNetwork.simplify(g)
+	g = GrantResearcherNetwork.simplify(g)
 
 	startBudgetYear = budgetYears[0]
 	endBudgetYear = budgetYears[-1]
