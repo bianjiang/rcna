@@ -16,15 +16,8 @@ import logging
 import os
 import igraph
 import numpy as np
-from misc.utils import root_folder
+from misc.utils import root_folder, load_network_for
 from network_analysis.networks import GrantResearcherNetwork
-from grant_data.loader import GrantDataLoader
-import network_analysis.plot.powerlaw_plot as plplot
-import network_analysis.plot.igraph_plot as gplot
-import network_analysis.pagerank as pgrank
-import network_analysis.rank_aggregation as rg
-import network_analysis.centrality_leaders as cl
-from grant_data.utils import get_fiscal_year, parse_sap_id
 
 
 
@@ -111,32 +104,6 @@ def average_shortest_path_length(g):
 	return cap/cnt
 
 
-def statistics(budgetYears):
-	startBudgetYear = budgetYears[0]
-	endBudgetYear = budgetYears[-1]
-
-	#logger.info('----------------------------------------------')
-	#logger.info('---------------- %s-%s -------------------'%(startBudgetYear, endBudgetYear))
-	network = GrantResearcherNetwork.read(budgetYears)
-
-	g = network.g.copy()
-	GrantResearcherNetwork.simplify(g)
-
-	#logger.info('#number of nodes: %d'%(len(g.vs)))
-	#logger.info('#number of edges: %d'%(len(g.es)))
-
-	gs = g.decompose(mode=igraph.STRONG)
-
-	#logger.info('#number of isolated components: %d'%(len(gs)))
-	if int(startBudgetYear) == int(endBudgetYear):
-		fy = startBudgetYear
-		logger.info('%s & %d & %d & %0.2f & %d & %0.2f & %0.2f & %0.2f & %0.2f \\\\'%(fy,len(g.vs),len(g.es), round(g.density(), 2), len(gs), round(g.transitivity_undirected(), 2), round(average_shortest_path_length(g),2), round(diversities(budgetYears), 2), round(average_number_of_new_edges(budgetYears, range(startBudgetYear-1, startBudgetYear)), 2)))
-	else:
-		fy = '%s -- %s'%(startBudgetYear, endBudgetYear)
-		logger.info('\\textbf{%s} & \\textbf{%d} & \\textbf{%d} & \\textbf{%0.2f} & \\textbf{%d} & \\textbf{%0.2f} & \\textbf{%0.2f} & \\textbf{%0.2f} & \\textbf{%0.2f} \\\\'%(fy,len(g.vs),len(g.es), round(g.density(), 2),len(gs), round(g.transitivity_undirected(), 2), round(average_shortest_path_length(g),2), round(diversities(budgetYears), 2), 0.0))
-	logger.info('\\hline')
-	#logger.info('---------------- %s-%s -------------------'%(startBudgetYear, endBudgetYear))
-	#logger.info('----------------------------------------------')
 
 def ctsa_statistics(budgetYears):
 
@@ -286,13 +253,70 @@ def average_number_of_new_edges(cbudgetYears, pbudgetYears):
 	return new_edges/found_cnt
 
 
+def statistics(budgetYears):
+	startBudgetYear = budgetYears[0]
+	endBudgetYear = budgetYears[-1]
+
+	#logger.info('----------------------------------------------')
+	#logger.info('---------------- %s-%s -------------------'%(startBudgetYear, endBudgetYear))
+	network = GrantResearcherNetwork.read(budgetYears)
+
+	g = network.g.copy()
+	GrantResearcherNetwork.simplify(g)
+
+	#logger.info('#number of nodes: %d'%(len(g.vs)))
+	#logger.info('#number of edges: %d'%(len(g.es)))
+
+	gs = g.decompose(mode=igraph.STRONG)
+
+	#logger.info('#number of isolated components: %d'%(len(gs)))
+	if int(startBudgetYear) == int(endBudgetYear):
+		fy = startBudgetYear
+		logger.info('%s & %d & %d & %0.2f & %d & %0.2f & %0.2f & %0.2f & %0.2f \\\\'%(fy,len(g.vs),len(g.es), round(g.density(), 2), len(gs), round(g.transitivity_undirected(), 2), round(average_shortest_path_length(g),2), round(diversities(budgetYears), 2), round(average_number_of_new_edges(budgetYears, range(startBudgetYear-1, startBudgetYear)), 2)))
+	else:
+		fy = '%s -- %s'%(startBudgetYear, endBudgetYear)
+		logger.info('\\textbf{%s} & \\textbf{%d} & \\textbf{%d} & \\textbf{%0.2f} & \\textbf{%d} & \\textbf{%0.2f} & \\textbf{%0.2f} & \\textbf{%0.2f} & \\textbf{%0.2f} \\\\'%(fy,len(g.vs),len(g.es), round(g.density(), 2),len(gs), round(g.transitivity_undirected(), 2), round(average_shortest_path_length(g),2), round(diversities(budgetYears), 2), 0.0))
+	logger.info('\\hline')
+	#logger.info('---------------- %s-%s -------------------'%(startBudgetYear, endBudgetYear))
+	#logger.info('----------------------------------------------')
+
+def network_characteristics(network):
+	g = network.g.copy()
+
+	#g = GrantResearcherNetwork.largest_component(g)
+	g = GrantResearcherNetwork.simplify(g)
+	logger.info(g.summary())
+
+	weights =  [1.0/weight for weight in g.es['weight']]
+
+	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=None)
+	logger.info('C_g (weights = None): %f'%C_g)
+
+	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=g.es['weight'])
+	logger.info('C_g (weights = number of collaborations): %f'%C_g)
+
+	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=weights)
+	logger.info('C_g (weights = resistance factor): %f'%C_g)
+
+	C_g = g.transitivity_undirected(mode='zero')
+	logger.info('C_g (triplets definition): %f'%C_g)
+
 if __name__ == '__main__':
 
+	network = load_network_for(range(2006,2010))
+
+	network_characteristics(network)
+
+	network = load_network_for(range(2010,2013))
+
+	network_characteristics(network)
+
+	quit()
 	logger.info('\\hline')
 	for budgetYear in range(2006, 2010):
-		statistics(range(budgetYear,budgetYear+1))
+		network_characteristics(range(budgetYear,budgetYear+1))
 
-	statistics(range(2006,2010))
+	network_characteristics(range(2006,2010))
 	logger.info('\\hline')
 	for budgetYear in range(2010, 2013):
 		statistics(range(budgetYear,budgetYear+1))

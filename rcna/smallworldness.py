@@ -36,7 +36,7 @@ def average_shortest_path_length(g):
 	return g.average_path_length(directed = False, unconn=False)
 
 def clustering_coefficient(g):
-
+	# use Watts and Strogatz definition of clustering coefficient
 	return g.transitivity_avglocal_undirected(mode='zero')
 
 # ER graph doesn't have weights... (this might be a nice project to see what if we consider weights, (allow the same edge get picked again))
