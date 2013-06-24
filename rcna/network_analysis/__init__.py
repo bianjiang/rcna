@@ -1,2 +1,2 @@
 
-__all__ = ['metrics', 'networks', 'pagerank', 'rank_aggregation', 'centrality_leaders', 'utils']
+__all__ = ['networks', 'utils']

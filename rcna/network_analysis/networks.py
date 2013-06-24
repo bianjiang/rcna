@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 
-class GrantResearcherNetwork(object):
+class ResearchCollaborationNetwork(object):
 
 	def g():
 		doc = 'The internal igraph object.'
@@ -75,7 +75,7 @@ class GrantResearcherNetwork(object):
 		edges = {}
 
 		for node in g.vs:
-			GrantResearcherNetwork.node_index(nodes, int(node['name']))
+			ResearchCollaborationNetwork.node_index(nodes, int(node['name']))
 
 		for edge in g.es:
 			v1 = int(g.vs[edge.source]['name'])
@@ -114,7 +114,7 @@ class GrantResearcherNetwork(object):
 	#get the largest component (the component with the most connected nodes)
 	@staticmethod
 	def largest_component(g):
-		g = GrantResearcherNetwork.simplify(g)
+		g = ResearchCollaborationNetwork.simplify(g)
 
 		g_ = None
 		vs_ = 0

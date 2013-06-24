@@ -16,8 +16,9 @@ import logging
 import os
 import igraph
 import numpy as np
-from misc.utils import root_folder, load_network_for
-from network_analysis.networks import GrantResearcherNetwork
+from misc.utils import root_folder
+from network_analysis.utils import load_network_for
+from network_analysis.networks import ResearchCollaborationNetwork
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
@@ -54,7 +55,7 @@ def diversity(g, weights=None, category='department'):
 
 
 			if len(ap) > 0:
-				cap += sum(ap)/len(ap)
+				cap += sum(ap)/(len(ap) - 1)
 			else:
 				continue # if no shortest path, ignore this node, shouldn't count it
 
@@ -87,11 +88,10 @@ def average_number_of_new_edges(cg, pg):
 def average_shortest_path_length_weighted(g, weights=None):
 
 	cap = 0.0
-
 	shortest_paths = g.shortest_paths(weights=weights, mode=igraph.ALL)
 
 	for v in shortest_paths:
-		cap += sum(v)/ (len(v) - 1) #discount self reference
+		cap += float(sum(np.array(v, dtype=np.float)))/ (len(v) - 1) #discount self reference
 
 	return cap/len(shortest_paths)
 
@@ -105,17 +105,13 @@ def network_characteristics(budgetYears):
 	g = network.g.copy()
 
 	# simplified network is the one without any isolated nodes (nodes that are not connected to any other nodes)
-	g = GrantResearcherNetwork.simplify(g)
+	g = ResearchCollaborationNetwork.simplify(g)
 
 	logger.info('# of nodes: %d'%(len(g.vs)))
 
 	logger.info('# of edges: %d'%(len(g.es)))
 
-	logger.info('density: %d'%(g.density()))
-
-	logger.info('# of isolated components: %d'%(num_of_isolated_components(g)))
-
-	#pNetwork = load_network_for()
+	logger.info('density: %.3f'%(g.density()))
 
 	new_edges = 0.0
 
@@ -128,36 +124,41 @@ def network_characteristics(budgetYears):
 
 		pNetwork = load_network_for(pBudgetYears)
 		pg = pNetwork.g.copy()
-		pg = GrantResearcherNetwork.simplify(pg)
+		pg = ResearchCollaborationNetwork.simplify(pg)
 
 		new_edges = average_number_of_new_edges(g, pg)
+	logger.info('average number of new edges: %.3f'%new_edges)
 
-	logger.info('average number of new edges: %f'%new_edges)
+	logger.info('# of isolated components: %d'%(num_of_isolated_components(g)))
 
 
 	# only the largest component, mainly because shortest path length is rather arbitrary on graphs with isolated components, which our RCNs are.
-	g = GrantResearcherNetwork.largest_component(g)
+	g = ResearchCollaborationNetwork.largest_component(g)
 	weights = g.es['weight']
 	r_weights = [ 1/float(weight) for weight in g.es['weight']]
+	no_weigths = [ 1 for weight in g.es['weight']]
 
 	logger.info('# of nodes (largest component): %d'%(len(g.vs)))
 
 	logger.info('# of edges (largest component): %d'%(len(g.es)))
 
-	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=None)
-	logger.info('C_g (weights = None): %f'%C_g)
+	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=no_weigths)
+	logger.info('C_g (weights = None): %.3f'%C_g)
 
-	C_g = g.transitivity_avglocal_undirected(mode='zero', weights=weights)
-	logger.info('C_g (weights = number of collaborations): %f'%C_g)
+	C_wg = g.transitivity_avglocal_undirected(mode='zero', weights=weights)
+	logger.info('C_g (weights = number of collaborations): %.3f'%C_wg)
 
-	C_g = g.transitivity_undirected(mode='zero')
-	logger.info('C_g (triplets definition): %f'%C_g)
+	C_tg = g.transitivity_undirected(mode='zero')
+	logger.info('C_g (triplets definition): %.3f'%C_tg)
+
+	L_g = average_shortest_path_length_weighted(g, no_weigths)
+	logger.info("L_g (weights = 1): %.3f"%L_g)
 
 	L_wg = average_shortest_path_length_weighted(g, r_weights)
-	logger.info("L_g (weights = 1/weights): %f"%L_wg)
+	logger.info("L_g (weights = 1/weights): %.3f"%L_wg)
 
 	D_wg = diversity(g, r_weights)
-	logger.info("D_g (weights = 1/weights): %f"%D_wg)
+	logger.info("D_g (weights = 1/weights): %.3f"%D_wg)
 
 
 if __name__ == '__main__':

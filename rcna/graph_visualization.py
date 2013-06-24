@@ -14,8 +14,9 @@ import itertools
 import os
 import json
 import cProfile
-from misc.utils import root_folder, load_network_for
-from network_analysis.networks import GrantResearcherNetwork
+from misc.utils import root_folder
+from network_analysis.utils import load_network_for
+from network_analysis.networks import ResearchCollaborationNetwork
 import igraph
 
 logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ def draw_g(budgetYears):
 	# convert to undirected
 	#g.to_undirected(combine_edges=sum)
 
-	g = GrantResearcherNetwork.simplify(g)
+	g = ResearchCollaborationNetwork.simplify(g)
 
 	startBudgetYear = budgetYears[0]
 	endBudgetYear = budgetYears[-1]
@@ -72,7 +73,7 @@ def draw_g(budgetYears):
 	#logger.info(g.summary())
 	draw(g, filename)
 
-	gl = GrantResearcherNetwork.largest_component(g)
+	gl = ResearchCollaborationNetwork.largest_component(g)
 	
 	filename = '%s/figures/%s-%s-%d-largest-component.png'%(root_folder(),startBudgetYear, endBudgetYear,len(gl.vs))
 

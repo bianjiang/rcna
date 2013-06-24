@@ -16,8 +16,9 @@ import logging
 import os
 import igraph
 import numpy as np
-from misc.utils import root_folder, load_network_for
-from network_analysis.networks import GrantResearcherNetwork
+from misc.utils import root_folder
+from network_analysis.utils import load_network_for
+from network_analysis.networks import ResearchCollaborationNetwork
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ def smallworldness(network, rep = 1000):
 	g = network.g.copy()
 	#logger.info(g.summary())
 	# there is no point to consider a disconnected graph ( the average path length means nothing)
-	g = GrantResearcherNetwork.largest_component(g)
+	g = ResearchCollaborationNetwork.largest_component(g)
 	
 	n = len(g.vs)
 	m = len(g.es)
