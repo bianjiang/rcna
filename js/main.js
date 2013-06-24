@@ -264,18 +264,22 @@ var networkfiles = {
 	'2010-2010': default_opts,
 	'2011-2011': default_opts,
 	'2012-2012': default_opts,
-	'2006-2009': default_opts,
-	'2006-2009-simplified': {
+	'2006-2009': {
 		gravity: 0.15
 	},
-	'2010-2012': default_opts,
-	'2010-2012-simplified': {
+	'2010-2012': {
+		gravity: 0.15
+	},
+	'2006-2012': {
 		gravity: 0.15
 	},
 	'2006-2009-largest-component': {
 		gravity: 0.15
 	},
 	'2010-2012-largest-component': {
+		gravity: 0.15
+	},
+	'2006-2012-largest-component': {
 		gravity: 0.15
 	}
 };
