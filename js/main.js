@@ -314,7 +314,7 @@ var createNav = function createNavBar(activeNetwork) {
 
 $(document).ready(function(){
 
-	activeNetwork = '2010-2012-simplified';
+	activeNetwork = '2006-2012';
 
 	createNav(activeNetwork);
 
