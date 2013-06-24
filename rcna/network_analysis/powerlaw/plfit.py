@@ -1,266 +1,426 @@
-# intended to implement a power-law fitting routine as specified in.....
-# http://www.santafe.edu/~aaronc/powerlaws/
+from math import *
+
+# function [alpha, xmin, L]=plfit(x, varargin)
+# PLFIT fits a power-law distributional model to data.
+#    Source: http://www.santafe.edu/~aaronc/powerlaws/
+# 
+#    PLFIT(x) estimates x_min and alpha according to the goodness-of-fit
+#    based method described in Clauset, Shalizi, Newman (2007). x is a 
+#    vector of observations of some quantity to which we wish to fit the 
+#    power-law distribution p(x) ~  x^-alpha for x >= xmin.
+#    PLFIT automatically detects whether x is composed of real or integer
+#    values, and applies the appropriate method. For discrete data, if
+#    min(x) > 1000, PLFIT uses the continuous approximation, which is 
+#    a reliable in this regime.
+#   
+#    The fitting procedure works as follows:
+#    1) For each possible choice of x_min, we estimate alpha via the 
+#       method of maximum likelihood, and calculate the Kolmogorov-Smirnov
+#       goodness-of-fit statistic D.
+#    2) We then select as our estimate of x_min, the value that gives the
+#       minimum value D over all values of x_min.
 #
-# The MLE for the power-law alpha is very easy to derive given knowledge
-# of the lowest value at which a power law holds, but that point is 
-# difficult to derive and must be acquired iteratively.
+#    Note that this procedure gives no estimate of the uncertainty of the 
+#    fitted parameters, nor of the validity of the fit.
+#
+#    Example:
+#       x = [500,150,90,81,75,75,70,65,60,58,49,47,40]
+#       [alpha, xmin, L] = plfit(x)
+#   or  a = plfit(x)
+#
+#    The output 'alpha' is the maximum likelihood estimate of the scaling
+#    exponent, 'xmin' is the estimate of the lower bound of the power-law
+#    behavior, and L is the log-likelihood of the data x>=xmin under the
+#    fitted power law.
+#    
+#    For more information, try 'type plfit'
+#
+#    See also PLVAR, PLPVA
 
-"""
-Pure-Python version of plfit.py
-===============================
+# Version 1.0.10 (2010 January)
+# Copyright (C) 2008-2011 Aaron Clauset (Santa Fe Institute)
 
-A *pure* python power-law distribution fitter based on code by Aaron Clauset.
-This is the slowest implementation, but has no dependencies.
+# Ported to Python by Joel Ornstein (2011 July)
+# (joel_ornstein@hmc.edu)
 
-Example very simple use::
+# Distributed under GPL 2.0
+# http://www.gnu.org/copyleft/gpl.html
+# PLFIT comes with ABSOLUTELY NO WARRANTY
+#
+# 
+# The 'zeta' helper function is modified from the open-source library 'mpmath'
+#   mpmath: a Python library for arbitrary-precision floating-point arithmetic
+#   http://code.google.com/p/mpmath/
+#   version 0.17 (February 2011) by Fredrik Johansson and others
+# 
 
-    from plfit_py import plfit
+# Notes:
+# 
+# 1. In order to implement the integer-based methods in Matlab, the numeric
+#    maximization of the log-likelihood function was used. This requires
+#    that we specify the range of scaling parameters considered. We set
+#    this range to be 1.50 to 3.50 at 0.01 intervals by default. 
+#    This range can be set by the user like so,
+#    
+#       a = plfit(x,'range',[1.50,3.50,0.01])
+#    
+# 2. PLFIT can be told to limit the range of values considered as estimates
+#    for xmin in three ways. First, it can be instructed to sample these
+#    possible values like so,
+#    
+#       a = plfit(x,'sample',100)
+#    
+#    which uses 100 uniformly distributed values on the sorted list of
+#    unique values in the data set. Second, it can simply omit all
+#    candidates above a hard limit, like so
+#    
+#       a = plfit(x,'limit',3.4)
+#    
+#    Finally, it can be forced to use a fixed value, like so
+#    
+#       a = plfit(x,'xmin',3.4)
+#    
+#    In the case of discrete data, it rounds the limit to the nearest
+#    integer.
+# 
+# 3. When the input sample size is small (e.g., < 100), the continuous 
+#    estimator is slightly biased (toward larger values of alpha). To
+#    explicitly use an experimental finite-size correction, call PLFIT like
+#    so
+#    
+#       a = plfit(x,'finite')
+#    
+#    which does a small-size correction to alpha.
+#
+# 4. For continuous data, PLFIT can return erroneously large estimates of 
+#    alpha when xmin is so large that the number of obs x >= xmin is very 
+#    small. To prevent this, we can truncate the search over xmin values 
+#    before the finite-size bias becomes significant by calling PLFIT as
+#    
+#       a = plfit(x,'nosmall')
+#    
+#    which skips values xmin with finite size bias > 0.1.
 
-    MyPL = plfit(mydata)
-    MyPL.plotpdf(log=True)
+def plfit(x, *varargin):
+    vec     = []
+    sample  = []
+    xminx   = []
+    limit   = []
+    finite  = False
+    nosmall = False
+    nowarn  = False
 
-"""
+    # parse command-line parameters trap for bad input
+    i=0 
+    while i<len(varargin): 
+        argok = 1 
+        if type(varargin[i])==str: 
+            if varargin[i]=='range':
+                Range = varargin[i+1]
+                if Range[1]>Range[0]:
+                    argok=0
+                    vec=[]
+                try:
+                    vec=map(lambda X:X*float(Range[2])+Range[0],\
+                            range(int((Range[1]-Range[0])/Range[2])))
+                    
+                    
+                except:
+                    argok=0
+                    vec=[]
+                    
 
-import time
-import random
-import math
+                if Range[0]>=Range[1]:
+                    argok=0
+                    vec=[]
+                    i-=1
 
-class plfit:
-    """
-    A Python implementation of the Matlab code http://www.santafe.edu/~aaronc/powerlaws/plfit.m
-    from http://www.santafe.edu/~aaronc/powerlaws/
+                i+=1
+                    
+                            
+            elif varargin[i]== 'sample':
+                sample  = varargin[i+1]
+                i = i + 1
+            elif varargin[i]==  'limit':
+                limit   = varargin[i+1]
+                i = i + 1
+            elif varargin[i]==  'xmin':
+                xminx   = varargin[i+1]
+                i = i + 1
+            elif varargin[i]==  'finite':       finite  = True    
+            elif varargin[i]==  'nowarn':       nowarn  = True    
+            elif varargin[i]==  'nosmall':      nosmall = True    
+            else: argok=0 
+        
+      
+        if not argok:
+            print '(PLFIT) Ignoring invalid argument #',i+1 
+      
+        i = i+1 
 
-    See A. Clauset, C.R. Shalizi, and M.E.J. Newman, "Power-law distributions
-    in empirical data" SIAM Review, 51, 661-703 (2009). (arXiv:0706.1062)
-    http://arxiv.org/abs/0706.1062
-
-    The output "alpha" is defined such that :math:`p(x) \sim (x/xmin)^{-alpha}`
-    """
-
-    def __init__(self,x,**kwargs):
-        """
-        Initializes and fits the power law.  Can pass "quiet" to turn off 
-        output (except for warnings; "silent" turns off warnings)
-        """
-        neg = [i<0 for i in x]
-        if any(neg) > 0:
-            print "Removed %i negative points" % (sum(neg))
-            x = [i for i in x if i > 0]
-        self.data = x
-        self.plfit(**kwargs)
-
-
-    def alpha_(self,x):
-        """ Create a mappable function alpha to apply to each xmin in a list of xmins.
-        This is essentially the slow version of fplfit/cplfit, though I bet it could
-        be speeded up with a clever use of parellel_map.  Not intended to be used by users."""
-        def alpha(xmin,x=x):
-            """
-            given a sorted data set and a minimum, returns power law MLE fit
-            data is passed as a keyword parameter so that it can be vectorized
-            """
-            x = [i for i in x if i>=xmin]
-            n = sum(x)
-            divsum = sum([math.log(i/xmin) for i in x])
-            if divsum == 0: return float('inf')
-            a = float(n) / divsum
-            return a
-        return alpha
-
-    def kstest_(self,x):
-        def kstest(xmin,x=x):
-            """
-            given a sorted data set and a minimum, returns power law MLE ks-test w/data
-            data is passed as a keyword parameter so that it can be vectorized
-
-            The returned value is the "D" parameter in the ks test...
-            """
-            x = [i for i in x if i>=xmin]
-            n = float(len(x))
-            if n == 0: return float('inf')
-            divsum = sum([math.log(i/xmin) for i in x])
-            if divsum == 0: return float('inf')
-            a = float(n) / divsum
-            cx = [float(i)/float(n) for i in xrange(n)]
-            cf = [1-(xmin/i)**a for i in x]
-            ks = max([abs(a-b) for a,b in zip(cf,cx)])
-            return ks
-        return kstest
+    if vec!=[] and (type(vec)!=list or min(vec)<=1):
+        print '(PLFIT) Error: ''range'' argument must contain a vector or minimum <= 1. using default.\n'                        
+              
+        vec = []
+    
+    if sample!=[] and sample<2:
+        print'(PLFIT) Error: ''sample'' argument must be a positive integer > 1. using default.\n'
+        sample = []
+    
+    if limit!=[] and limit<min(x):
+        print'(PLFIT) Error: ''limit'' argument must be a positive value >= 1. using default.\n'
+        limit = []
+    
+    if xminx!=[] and xminx>=max(x):
+        print'(PLFIT) Error: ''xmin'' argument must be a positive value < max(x). using default behavior.\n'
+        xminx = []
     
 
-    def plfit(self,nosmall=True,finite=False,quiet=False,silent=False,usefortran=False,usecy=False,
-            xmin=None, verbose=False):
-        """
-        A Python implementation of the Matlab code http://www.santafe.edu/~aaronc/powerlaws/plfit.m
-        from http://www.santafe.edu/~aaronc/powerlaws/
 
-        See A. Clauset, C.R. Shalizi, and M.E.J. Newman, "Power-law distributions
-        in empirical data" SIAM Review, 51, 661-703 (2009). (arXiv:0706.1062)
-        http://arxiv.org/abs/0706.1062
+    # select method (discrete or continuous) for fitting
+    if     reduce(lambda X,Y:X==True and floor(Y)==float(Y),x,True): f_dattype = 'INTS'
+    elif reduce(lambda X,Y:X==True and (type(Y)==int or type(Y)==float or type(Y)==long),x,True):    f_dattype = 'REAL'
+    else:                 f_dattype = 'UNKN'
+    
+    if f_dattype=='INTS' and min(x) > 1000 and len(x)>100:
+        f_dattype = 'REAL'
+    
 
-        nosmall is on by default; it rejects low s/n points
-        can specify xmin to skip xmin estimation
-        """
-        x = self.data
-        z = sorted(x)
-        t = time.time()
-        xmins = sorted(set(z))
-        argxmins = [z.index(i) for i in xmins]
-        self._nunique = len(xmins)
-        if xmin is None:
-            av  = map(self.alpha_(z),xmins)
-            dat = map(self.kstest_(z),xmins)
-            sigma = [(a-1)/math.sqrt(len(z)-i+1) for a,i in zip(av,argxmins)]
+    # estimate xmin and alpha, accordingly
+        
+    if f_dattype== 'REAL':
+        xmins = unique(x)
+        xmins.sort()
+        xmins = xmins[0:-1]
+        if xminx!=[]:
+            
+            xmins = [min(filter(lambda X: X>=xminx,xmins))]
+            
+        
+        if limit!=[]:
+            xmins=filter(lambda X: X<=limit,xmins)
+            if xmins==[]: xmins = [min(x)]
+            
+        if sample!=[]:
+            step = float(len(xmins))/(sample-1)
+            index_curr=0
+            new_xmins=[]
+            for i in range (0,sample):
+                if round(index_curr)==len(xmins): index_curr-=1
+                new_xmins.append(xmins[int(round(index_curr))])
+                index_curr+=step
+            xmins = unique(new_xmins)
+            xmins.sort()
+            
+            
+        
+        dat   = []
+        z     = sorted(x)
+        
+        for xm in range(0,len(xmins)):
+            xmin = xmins[xm]
+            z    = filter(lambda X:X>=xmin,z)
+            
+            n    = len(z)
+            # estimate alpha using direct MLE
+
+            a    = float(n) / sum(map(lambda X: log(float(X)/xmin),z))
             if nosmall:
-                # test to make sure the number of data points is high enough
-                # to provide a reasonable s/n on the computed alpha
-                goodvals = [s<0.1 for s in sigma]
-                if False in goodvals: 
-                    nmax = goodvals.index(False)
-                    dat = dat[:nmax]
-                    xmins = xmins[:nmax]
-                    av = av[:nmax]
-                else:
-                    print "Not enough data left after flagging - using all positive data."
-            if not quiet: print "PYTHON plfit executed in %f seconds" % (time.time()-t)
-            self._av = av
-            self._xmin_kstest = dat
-            self._sigma = sigma
-            xmin  = xmins[dat.index(min(dat))] 
-        z     = [i for i in z if i >= xmin]
+                if (a-1)/sqrt(n) > 0.1 and dat!=[]:
+                    xm = len(xmins)+1
+                    break
+                
+            
+            # compute KS statistic
+            #cx   = map(lambda X:float(X)/n,range(0,n))
+            cf   = map(lambda X:1-pow((float(xmin)/X),a),z)
+            dat.append( max( map(lambda X: abs(cf[X]-float(X)/n),range(0,n))))
+        D     = min(dat)
+        xmin  = xmins[dat.index(D)]
+        z     = filter(lambda X:X>=xmin,x)
+        z.sort()
+        n     = len(z) 
+        alpha = 1 + n / sum(map(lambda X: log(float(X)/xmin),z))
+        if finite: alpha = alpha*float(n-1)/n+1./n  # finite-size correction
+        if n < 50 and not finite and not nowarn:
+            print '(PLFIT) Warning: finite-size bias may be present.\n'
+        
+        L = n*log((alpha-1)/xmin) - alpha*sum(map(lambda X: log(float(X)/xmin),z))
+    elif f_dattype== 'INTS':
+        
+        x=map(int,x)
+        if vec==[]:
+            for X in range(150,351):
+                vec.append(X/100.)    # covers range of most practical 
+                                    # scaling parameters
+        zvec = map(zeta, vec)
+        
+        xmins = unique(x)
+        xmins.sort()
+        xmins = xmins[0:-1]
+        if xminx!=[]:
+            xmins = [min(filter(lambda X: X>=xminx,xmins))]
+        
+        if limit!=[]:
+            limit = round(limit)
+            xmins=filter(lambda X: X<=limit,xmins)
+            if xmins==[]: xmins = [min(x)]
+        
+        if sample!=[]:
+            step = float(len(xmins))/(sample-1)
+            index_curr=0
+            new_xmins=[]
+            for i in range (0,sample):
+                if round(index_curr)==len(xmins): index_curr-=1
+                new_xmins.append(xmins[int(round(index_curr))])
+                index_curr+=step
+            xmins = unique(new_xmins)
+            xmins.sort()
+        
+        if xmins==[]:
+            print '(PLFIT) Error: x must contain at least two unique values.\n'
+            alpha = 'Not a Number'
+            xmin = x[0]
+            D = 'Not a Number'
+            return [alpha,xmin,D]
+        
+        xmax   = max(x)
+        
+        z      = x
+        z.sort()
+        datA=[]
+        datB=[]
+
+        for xm in range(0,len(xmins)):
+            xmin = xmins[xm]
+            z    = filter(lambda X:X>=xmin,z)
+            n    = len(z)
+            # estimate alpha via direct maximization of likelihood function
+
+            # force iterative calculation 
+            L       = []
+            slogz   = sum(map(log,z))
+            xminvec = map(float,range(1,xmin))
+            for k in range(0,len(vec)):
+                L.append(-vec[k]*float(slogz) - float(n)*log(float(zvec[k]) - sum(map(lambda X:pow(float(X),-vec[k]),xminvec))))
+            
+            
+            I = L.index(max(L))
+            # compute KS statistic
+            fit = reduce(lambda X,Y: X+[Y+X[-1]],\
+                         (map(lambda X: pow(X,-vec[I])/(float(zvec[I])-sum(map(lambda X: pow(X,-vec[I]),map(float,range(1,xmin))))),range(xmin,xmax+1))),[0])[1:]
+            cdi=[]
+            for XM in range(xmin,xmax+1):
+                cdi.append(len(filter(lambda X: floor(X)<=XM,z))/float(n))
+            
+            datA.append(max( map(lambda X: abs(fit[X] - cdi[X]),range(0,xmax-xmin+1))))
+            datB.append(vec[I])
+        # select the index for the minimum value of D
+        I = datA.index(min(datA))
+        xmin  = xmins[I]
+        z     = filter(lambda X:X>=xmin,x)
         n     = len(z)
-        alpha = 1 + n / sum( [math.log(a/xmin) for a in z] ) 
-        if finite:
-            alpha = alpha*(n-1.)/n+1./n
-        if n == 1 and not silent:
-            print "Failure: only 1 point kept.  Probably not a power-law distribution."
-            self._alpha = 0
-            self._alphaerr = 0
-            self._likelihood = 0
-            self._ks = 0
-            self._ks_prob = 0
-            self._xmin = xmin
-            return xmin,0
-        if n < 50 and not finite and not silent:
-            print '(PLFIT) Warning: finite-size bias may be present. n=%i' % n
-        # ks = max(abs( numpy.arange(n)/float(n) - (1-(xmin/z)**(alpha-1)) ))
-        ks = max( [abs( i/float(n) - (1-(xmin/b)**(alpha-1))) for i,b in zip(xrange(n),z)] )
-        # Parallels Eqn 3.5 in Clauset et al 2009, but zeta(alpha, xmin) = (alpha-1)/xmin.  Really is Eqn B3 in paper.
-        #L = n*log((alpha-1)/xmin) - alpha*sum(log(z/xmin))
-        sl = sum([math.log(a/xmin) for a in z])
-        L = (n*math.log((alpha-1)/xmin) - alpha*sl)
-        #requires another map... Larr = arange(len(unique(x))) * log((av-1)/unique(x)) - av*sum
-        self._likelihood = L
-        self._xmin = xmin
-        self._xmins = xmins
-        self._alpha= alpha
-        self._alphaerr = (alpha-1)/math.sqrt(n)
-        self._ks = ks  # this ks statistic may not have the same value as min(dat) because of unique()
-        #if scipyOK: self._ks_prob = scipy.stats.kstwobign.sf(ks*numpy.sqrt(n))
-        self._ngtx = n
-        if math.isnan(L) or math.isnan(xmin) or math.isnan(alpha):
-            raise ValueError("plfit failed; returned a nan")
+        alpha = datB[I]
+        if finite: alpha = alpha*(n-1.)/n+1./n  # finite-size correction
+        if n < 50 and not finite and not nowarn:
+            print '(PLFIT) Warning: finite-size bias may be present.\n'
+        
+        L     = -alpha*sum(map(log,z)) - n*log(zvec[vec.index(max(filter(lambda X:X<=alpha,vec)))] - \
+                                              sum(map(lambda X: pow(X,-alpha),range(1,xmin))))
+    else:
+        print '(PLFIT) Error: x must contain only reals or only integers.\n'
+        alpha = []
+        xmin  = []
+        L     = []
 
-        if not quiet:
-            if verbose: print "The lowest value included in the power-law fit, ",
-            print "xmin: %g" % xmin,
-            if verbose: print "\nThe number of values above xmin, ",
-            print "n(>xmin): %i" % n,
-            if verbose: print "\nThe derived power-law alpha (p(x)~x^-alpha) with MLE-derived error, ",
-            print "alpha: %g +/- %g  " % (alpha,self._alphaerr), 
-            if verbose: print "\nThe log of the Likelihood (the maximized parameter), ",
-            print "Log-Likelihood: %g  " % L,
-            if verbose: print "\nThe KS-test statistic between the best-fit power-law and the data, ",
-            print "ks: %g" % (ks)
-
-        return xmin,alpha
+    return [alpha,xmin,L]
 
 
-def plexp(x,xm=1,a=2.5):
+# helper functions (unique and zeta)
+
+
+def unique(seq): 
+    # not order preserving 
+    set = {} 
+    map(set.__setitem__, seq, []) 
+    return set.keys()
+
+def _polyval(coeffs, x):
+    p = coeffs[0]
+    for c in coeffs[1:]:
+        p = c + x*p
+    return p
+
+_zeta_int = [\
+-0.5,
+0.0,
+1.6449340668482264365,1.2020569031595942854,1.0823232337111381915,
+1.0369277551433699263,1.0173430619844491397,1.0083492773819228268,
+1.0040773561979443394,1.0020083928260822144,1.0009945751278180853,
+1.0004941886041194646,1.0002460865533080483,1.0001227133475784891,
+1.0000612481350587048,1.0000305882363070205,1.0000152822594086519,
+1.0000076371976378998,1.0000038172932649998,1.0000019082127165539,
+1.0000009539620338728,1.0000004769329867878,1.0000002384505027277,
+1.0000001192199259653,1.0000000596081890513,1.0000000298035035147,
+1.0000000149015548284]
+
+_zeta_P = [-3.50000000087575873, -0.701274355654678147,
+-0.0672313458590012612, -0.00398731457954257841,
+-0.000160948723019303141, -4.67633010038383371e-6,
+-1.02078104417700585e-7, -1.68030037095896287e-9,
+-1.85231868742346722e-11][::-1]
+
+_zeta_Q = [1.00000000000000000, -0.936552848762465319,
+-0.0588835413263763741, -0.00441498861482948666,
+-0.000143416758067432622, -5.10691659585090782e-6,
+-9.58813053268913799e-8, -1.72963791443181972e-9,
+-1.83527919681474132e-11][::-1]
+
+_zeta_1 = [3.03768838606128127e-10, -1.21924525236601262e-8,
+2.01201845887608893e-7, -1.53917240683468381e-6,
+-5.09890411005967954e-7, 0.000122464707271619326,
+-0.000905721539353130232, -0.00239315326074843037,
+0.084239750013159168, 0.418938517907442414, 0.500000001921884009]
+
+_zeta_0 = [-3.46092485016748794e-10, -6.42610089468292485e-9,
+1.76409071536679773e-7, -1.47141263991560698e-6, -6.38880222546167613e-7,
+0.000122641099800668209, -0.000905894913516772796, -0.00239303348507992713,
+0.0842396947501199816, 0.418938533204660256, 0.500000000000000052]
+
+def zeta(s):
     """
-    CDF(x) for the piecewise distribution exponential x<xmin, powerlaw x>=xmin
-    This is the CDF version of the distributions drawn in fig 3.4a of Clauset et al.
+    Riemann zeta function, real argument
     """
+    if not isinstance(s, (float, int)):
+        try:
+            s = float(s)
+        except (ValueError, TypeError):
+            try:
+                s = complex(s)
+                if not s.imag:
+                    return complex(zeta(s.real))
+            except (ValueError, TypeError):
+                pass
+            raise NotImplementedError
+    if s == 1:
+        raise ValueError("zeta(1) pole")
+    if s >= 27:
+        return 1.0 + 2.0**(-s) + 3.0**(-s)
+    n = int(s)
+    if n == s:
+        if n >= 0:
+            return _zeta_int[n]
+        if not (n % 2):
+            return 0.0
+    if s <= 0.0:
+        return 0
+    if s <= 2.0:
+        if s <= 1.0:
+            return _polyval(_zeta_0,s)/(s-1)
+        return _polyval(_zeta_1,s)/(s-1)
+    z = _polyval(_zeta_P,s) / _polyval(_zeta_Q,s)
+    return 1.0 + 2.0**(-s) + 3.0**(-s) + 4.0**(-s)*z
 
-    C = 1/(-xm/(1 - a) - xm/a + math.exp(a)*xm/a)
-    Ppl = lambda(X): 1+C*(xm/(1-a)*(X/xm)**(1-a))
-    Pexp = lambda(X): C*xm/a*math.exp(a)-C*(xm/a)*math.exp(-a*(X/xm-1))
-    d=Ppl(x)
-    d[x<xm]=Pexp(x)
-    return d
 
-def plexp_inv(P,xm,a):
-    """
-    Inverse CDF for a piecewise PDF as defined in eqn. 3.10
-    of Clauset et al.  
-    """
 
-    C = 1/(-xm/(1 - a) - xm/a + math.exp(a)*xm/a)
-    Pxm = 1+C*(xm/(1-a))
-    pp = P
-    x = xm*(pp-1)*(1-a)/(C*xm)**(1/(1-a)) if pp >= Pxm else (math.log( ((C*xm/a)*math.exp(a)-pp)/(C*xm/a)) - a) * (-xm/a)
-    #x[P>=Pxm] = xm*( (P[P>=Pxm]-1) * (1-a)/(C*xm) )**(1/(1-a)) # powerlaw
-    #x[P<Pxm] = (math.log( (C*xm/a*math.exp(a)-P[P<Pxm])/(C*xm/a) ) - a) * (-xm/a) # exp
-
-    return x
-
-def pl_inv(P,xm,a):
-    """ 
-    Inverse CDF for a pure power-law
-    """
     
-    x = (1-P)**(1/(1-a)) * xm
-    return x
-
-def test_fitter(xmin=1.0, alpha=2.5, niter=500, npts=1000, invcdf=plexp_inv,
-        quiet=True, silent=True):
-    """
-    Tests the power-law fitter 
-
-    Examples
-    ========
-    Example (fig 3.4b in Clauset et al.)::
-
-        xminin=[0.25,0.5,0.75,1,1.5,2,5,10,50,100]
-        xmarr,af,ksv,nxarr = plfit.test_fitter(xmin=xminin,niter=1,npts=50000)
-        loglog(xminin,xmarr.squeeze(),'x')
-
-    Example 2::
-
-        xminin=[0.25,0.5,0.75,1,1.5,2,5,10,50,100]
-        xmarr,af,ksv,nxarr = plfit.test_fitter(xmin=xminin,niter=10,npts=1000)
-        loglog(xminin,xmarr.mean(axis=0),'x')
-
-    Example 3::
-
-        xmarr,af,ksv,nxarr = plfit.test_fitter(xmin=1.0,niter=1000,npts=1000)
-        hist(xmarr.squeeze());
-        # Test results:
-        # mean(xmarr) = 0.70, median(xmarr)=0.65 std(xmarr)=0.20
-        # mean(af) = 2.51 median(af) = 2.49  std(af)=0.14
-        # biased distribution; far from correct value of xmin but close to correct alpha
-    
-    Example 4::
-
-        xmarr,af,ksv,nxarr = plfit.test_fitter(xmin=1.0,niter=1000,npts=1000,invcdf=pl_inv)
-        print("mean(xmarr): %0.2f median(xmarr): %0.2f std(xmarr): %0.2f" % (mean(xmarr),median(xmarr),std(xmarr)))
-        print("mean(af): %0.2f median(af): %0.2f std(af): %0.2f" % (mean(af),median(af),std(af)))
-        # mean(xmarr): 1.19 median(xmarr): 1.03 std(xmarr): 0.35
-        # mean(af): 2.51 median(af): 2.50 std(af): 0.07
-
-    """
-    sz = niter
-    xmarr,alphaf_v,ksv,nxarr = ([0]*sz,)*4
-    for i in xrange(niter):
-        randarr = [random.random() for k in xrange(npts)]
-        fakedata = [invcdf(r,xmin,alpha) for r in randarr]
-        TEST = plfit(fakedata,quiet=quiet,silent=silent,nosmall=True)
-        alphaf_v[i] = TEST._alpha
-        ksv[i] = TEST._ks
-        nxarr[i] = TEST._ngtx
-        xmarr[i] = TEST._xmin
-
-    return xmarr,alphaf_v,ksv,nxarr
-
-
-
