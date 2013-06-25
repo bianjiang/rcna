@@ -59,9 +59,9 @@ def powerlaw_fit_p_value(X):
 
 	
 	fit = powerlaw.Fit(X, discrete=True)
-	logger.info("test degree powerlaw distribution p-value; alpha: %f; xmin: %f; sigma: %f, D: %f"%(fit.power_law.alpha, fit.power_law.xmin, fit.power_law.sigma, fit.power_law.D))
+	logger.info("test X powerlaw distribution p-value; alpha: %f; xmin: %f; sigma: %f, D: %f"%(fit.power_law.alpha, fit.power_law.xmin, fit.power_law.sigma, fit.power_law.D))
 
-	p, gof = plpva.plpva(degree,fit.power_law.xmin)
+	p, gof = plpva.plpva(X,fit.power_law.xmin)
 
 	logger.info("p: %f; good-of-fitness: %f"%(p, gof))
 
@@ -166,6 +166,18 @@ def plot_basics(data, data_inst, fig, units):
 
 if __name__ == '__main__':
 	import matplotlib.pyplot as plt
+
+	budgetYears = range(2006,2013)
+	
+	logger.info("================================================================")
+	logger.info(budgetYears)
+
+	wg_rcn_2006_2012, degree_rcn_2006_2012, strength_rcn_2006_2012 = get_data(budgetYears)
+
+	powerlaw_fit_p_value(degree_rcn_2006_2012)
+
+	powerlaw_fit_p_value(strength_rcn_2006_2012)
+	quit()
 
 	budgetYears = range(2006,2010)
 	

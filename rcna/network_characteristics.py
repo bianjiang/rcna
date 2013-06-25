@@ -25,7 +25,10 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 def num_of_isolated_components(g):
 	gs = g.decompose(mode=igraph.STRONG)
+	for g in gs:
+		logger.info(g.summary())
 
+	quit()
 	return len(gs)
 
 
@@ -172,3 +175,5 @@ if __name__ == '__main__':
 		network_characteristics(range(budgetYear,budgetYear+1))
 
 	network_characteristics(range(2010,2013))
+
+	network_characteristics(range(2006,2013))
