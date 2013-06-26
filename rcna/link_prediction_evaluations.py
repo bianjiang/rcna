@@ -177,7 +177,7 @@ def per_candidate(budgetYears):
 	for topK, p in mapk.iteritems():
 		logger.info('map@%d: %f'%(topK, (mapk[topK]/(kfold*len(candidates)))))
 
-	np.save('%s/result/%s-%s.per_user.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear), np.array(roc_samples))
+	np.save('%s/data/%s-%s.per_user.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear), np.array(roc_samples))
 
 
 def per_network(budgetYears):
@@ -310,7 +310,7 @@ def per_network(budgetYears):
 		logger.info('ap@%d: %f'%(topK, (apk[topK]/kfold)))
 
 	#plt.show()
-	np.save('%s/result/%s-%s.per_network.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear), np.array(roc_samples))
+	np.save('%s/data/%s-%s.per_network.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear), np.array(roc_samples))
 	#roc = pyroc.ROCData(roc_samples)
 	#logger.info('pyroc-auc: %f'%(roc.auc()))
 	#roc.plot(title='ROC Curve')
@@ -318,8 +318,8 @@ def per_network(budgetYears):
 
 if __name__ == '__main__':
 	per_candidate(range(2006,2010))
-	#per_candidate(range(2010,2013))
+	per_candidate(range(2010,2013))
 	
 
-	#per_network(range(2006,2010))
-	#per_network(range(2010,2013)) 
+	per_network(range(2006,2010))
+	per_network(range(2010,2013)) 
