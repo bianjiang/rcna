@@ -87,20 +87,34 @@ def smallworldness(network, rep = 1000):
 
 	return mean_s, ss
 
+def stats(ss):
+
+	ss = np.array(ss, dtype=np.float)
+
+	logger.info('mean: %.3f; std: %.3f; [%.3f, %.3f]'%(np.mean(ss), np.std(ss), np.min(ss), np.max(ss)))
 
 if __name__ == '__main__':
 
 	network = load_network_for(range(2006,2010))
 
 	s, ss = smallworldness(network, rep = 1000)
-
-	logger.info("Small-world-ness (2006 - 2009): %f"%s)
+	
+	logger.info("Small-world-ness (2006 - 2009)")
+	stats(ss)
 
 
 	network = load_network_for(range(2010,2013))
 
 	s, ss = smallworldness(network, rep = 1000)
 
-	logger.info("Small-world-ness (2010 - 2013): %f"%s)
+	logger.info("Small-world-ness (2010 - 2013)")
+	stats(ss)
 
+
+	network = load_network_for(range(2006,2013))
+
+	s, ss = smallworldness(network, rep = 1000)
+
+	logger.info("Small-world-ness (2006 - 2012)")
+	stats(ss)
 	

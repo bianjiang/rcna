@@ -187,12 +187,13 @@ def per_network(budgetYears):
 
 	logger.info('---------------- %s-%s -------------------'%(startBudgetYear, endBudgetYear))
 
-	network = GrantResearcherNetwork.read(budgetYears)
-	
-	g = network.g.copy()
-	GrantResearcherNetwork.simplify(g)
+	network = load_network_for(budgetYears)
 
-	#logger.info(g.summary())
+	g = network.g.copy()
+
+	ResearchCollaborationNetwork.simplify(g)
+
+	logger.info(g.summary())
 
 	# randomly pick 20 users 
 	candidates = range(len(g.vs))
@@ -317,9 +318,13 @@ def per_network(budgetYears):
 
 
 if __name__ == '__main__':
+	per_network(range(2006,2013)) 
+	quit()
 	per_candidate(range(2006,2010))
 	per_candidate(range(2010,2013))
-	
+	per_candidate(range(2006,2013))
 
 	per_network(range(2006,2010))
 	per_network(range(2010,2013)) 
+	per_network(range(2006,2013)) 
+

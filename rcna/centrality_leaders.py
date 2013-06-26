@@ -46,7 +46,7 @@ def draw(g, filename):
 	#visual_style['vertex_label'] = g.vs['name']
 	visual_style['edge_width'] = [e_weight for e_weight in g.es['weight']]
 	visual_style['layout'] = layout
-	visual_style['bbox'] = (1000, 1000)
+	visual_style['bbox'] = (1000, 400)
 	visual_style['margin'] = 20
 
 	igraph.plot(g, filename, **visual_style)
@@ -65,12 +65,13 @@ def centrality_leaders(budgetYears):
   	
   	candidates, rankings = cl.centrality_leaders(g)
 
+  	ordered_list = []
   	for r in range(len(rankings))[:topK]:
   		#logger.info('tier: %d'%r)
   		for i in list(rankings[r]):
   			node_name = g.vs[candidates[i]]['name']
-
-  			g.vs[candidates[i]]['centrality_leader'] = topK + 1 - r # set the node's centrality_leader attribute, the lower the better
+  			ordered_list.append(node_name)
+  			g.vs[candidates[i]]['centrality_leader'] = topK + 1 - r # set the node's centrality_leader attribute, the higher the better
 
   	startBudgetYear = budgetYears[0]
 	endBudgetYear = budgetYears[-1]
@@ -78,8 +79,17 @@ def centrality_leaders(budgetYears):
   	filename = '%s/figures/%s-%s-centrality-leaders.png'%(root_folder(),startBudgetYear, endBudgetYear)
  	draw(g, filename)
 
+ 	logger.info(ordered_list)
+
   	
 	
 if __name__ == '__main__':
+	
+	logger.info("2006-2010")
 	centrality_leaders(range(2006,2010))
+
+	logger.info("2009-2012")
 	centrality_leaders(range(2010,2013))
+
+	logger.info("2006-2012")
+	centrality_leaders(range(2006,2013))
