@@ -19,10 +19,9 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 
-def roc_curve_init():
+def roc_curve_init(ax):
 	#ax = plt.axes()
-	fig = plt.figure(figsize=(4,4))
-	ax = fig.add_subplot(1,1,1)
+	
 	ax.set_aspect(1)
 	plt.xlabel('False positive rate (1-Specificity)', fontsize=12)
 	plt.ylabel('True positive rate (Sensitivity)',  fontsize=12)
@@ -31,7 +30,6 @@ def roc_curve_init():
 	for s in ax.spines:
 		ax.spines[s].set_alpha(0.3)
 
-	return fig, ax
 
 def roc_curve(*args, **kwargs):
 	"""

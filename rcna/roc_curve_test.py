@@ -43,32 +43,36 @@ def test():
 	rc('text', usetex=False)
 	rc('font', family='serif')
 
+	fig = plt.figure(figsize=(12,24))
+	ax = fig.add_subplot(1,2,1)
+
 	task = 'per_user'
-	f, ax = roc.roc_curve_init()
+	roc.roc_curve_init(ax)
 
 	plot_auc(2006, 2009, task, ax, 'b', 'RCN (2006 - 2009)')
 	plot_auc(2010, 2012, task, ax, 'g', 'RCN (2010 - 2012)')
 	plot_auc(2006, 2012, task, ax, 'r', 'RCN (2006 - 2012)')	
 	
 
-	f.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=.3, hspace=.2)
-	plt.legend(loc=4)
+	#f.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=.3, hspace=.2)
+	#plt.legend(loc=4)
 	
-	plt.savefig('%s/figures/%s-roc-curve.eps'%(root_folder(), task),bbox_inches='tight', dpi=600)
+	#plt.savefig('%s/figures/%s-roc-curve.eps'%(root_folder(), task),bbox_inches='tight', dpi=600)
 
-	plt.close()
+	#plt.close()
 	task = 'per_network'
-	f, ax = roc.roc_curve_init()
+	ax = fig.add_subplot(1,2,2)
+	roc.roc_curve_init(ax)
 
 	plot_auc(2006, 2009, task, ax, 'b', 'RCN (2006 - 2009)')
 	plot_auc(2010, 2012, task, ax, 'g', 'RCN (2010 - 2012)')
 	plot_auc(2006, 2012, task, ax, 'r', 'RCN (2006 - 2012)')	
 	
-	f.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=.3, hspace=.2)
+	fig.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=.3, hspace=.2)
 	
-	plt.legend(loc=4)
+	plt.legend(loc='lower center', bbox_to_anchor=(0.5, -0.05), ncol=5, fancybox=True)
 
-	plt.savefig('%s/figures/%s-roc-curve.eps'%(root_folder(), task),bbox_inches='tight', dpi=600)
+	plt.savefig('%s/figures/roc-curve.eps'%(root_folder()),bbox_inches='tight', dpi=600)
 
 if __name__ == '__main__':
 	test()
