@@ -15,7 +15,7 @@ __license__ = 'MIT'
 import logging
 import numpy as np
 from misc.utils import root_folder
-import network_analysis.prediction.rocarea as roc
+import network_analysis.link_prediction.benchmark.rocarea as roc
 import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 def plot_auc(startBudgetYear,endBudgetYear):
 	
 
-	filename = '%s/result/%s-%s.per_network.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear)
+	filename = '%s/data/%s-%s.per_user.roc.samples.npy'%(root_folder(),startBudgetYear, endBudgetYear)
 
 	roc_samples = np.load(filename)
 
@@ -36,20 +36,21 @@ def plot_auc(startBudgetYear,endBudgetYear):
 		labels.append(np.float(label))
 		scores.append(np.float(score))
 
-	logger.info(scores)
-
-	quit()
-
 	area, [ax, lines] = roc.roc_curve(labels=np.array(labels),scores=np.array(scores))
 
 	return area, [ax, lines]
 
 def test():
-	plot_auc(2006, 2009)
-	plot_auc(2010, 2012)
+	area, [ax, lines] = plot_auc(2006, 2009)
 
+	logger.info(ax.patch.set_alpha(0.5))
+	quit()
+	#plot_auc(2010, 2012)
+
+	#logger.info(plt.figure().figurePatch)
 	#logger.info(area)
-
+	#logger.info(plt.figurePatch)
+	#plt.savefig('output.png',bbox_inches='tight', pad_inches=0)
 	plt.show()
 
 

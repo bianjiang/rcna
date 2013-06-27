@@ -318,13 +318,12 @@ def per_network(budgetYears):
 
 
 if __name__ == '__main__':
-	per_network(range(2006,2013)) 
-	quit()
-	per_candidate(range(2006,2010))
-	per_candidate(range(2010,2013))
-	per_candidate(range(2006,2013))
+
+	#per_candidate(range(2006,2010))
+	#per_candidate(range(2010,2013))
+	#per_candidate(range(2006,2013))
 
 	per_network(range(2006,2010))
 	per_network(range(2010,2013)) 
-	per_network(range(2006,2013)) 
+	#per_network(range(2006,2013)) 
 
