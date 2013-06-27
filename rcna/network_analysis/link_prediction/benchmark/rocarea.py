@@ -19,6 +19,20 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 
+def roc_curve_init():
+	#ax = plt.axes()
+	fig = plt.figure(figsize=(4,4))
+	ax = fig.add_subplot(1,1,1)
+	ax.set_aspect(1)
+	plt.xlabel('False positive rate (1-Specificity)', fontsize=12)
+	plt.ylabel('True positive rate (Sensitivity)',  fontsize=12)
+	ax.plot([0, 1], [0, 1], '--', color='grey', label='_nolegend_')
+
+	for s in ax.spines:
+		ax.spines[s].set_alpha(0.3)
+
+	return fig, ax
+
 def roc_curve(*args, **kwargs):
 	"""
 	Plot an ROC curve using matplotlib.
@@ -32,8 +46,9 @@ def roc_curve(*args, **kwargs):
 	Additional keyword arguments are passed along to the plot()
 	command used to draw the curve.
 	"""
-	allscores, positives, negatives, newkwargs = \
+	allscores, positives, negatives, ax, legend, newkwargs = \
 			_parse_roc_curve_args(*args, **kwargs)
+
 	allscores = np.sort(allscores)
 	thres = np.zeros(len(allscores) + 1)
 	thres[0] = min(allscores) - 1
@@ -71,12 +86,7 @@ def roc_curve(*args, **kwargs):
 	dx = np.diff(xcoord)
 	my = (ycoord[:-1] + ycoord[1:]) / 2.
 	area = np.sum(dx * my)
-	ax = plt.axes()
-	lines = ax.plot(xcoord, ycoord, **newkwargs)
-	ax.set_aspect(1)
-	plt.xlabel('1-Specificity')
-	plt.ylabel('Sensitivity')
-	ax.plot([0, 1], [0, 1], '--', color='grey')
+	lines = ax.plot(xcoord, ycoord, label=legend, **newkwargs)
 	return area, [ax, lines]
 
 def _parse_roc_curve_args(*args, **kwargs):
@@ -94,6 +104,7 @@ def _parse_roc_curve_args(*args, **kwargs):
 								 " positional args present")
 		positives, negatives = args
 		allscores = np.concatenate((positives, negatives))
+		ax = roc_curve_init()
 	elif len(args) != 0:
 		raise ValueError('roc_curve() takes a maximum of 2 positional args')
 	else:
@@ -132,13 +143,17 @@ def _parse_roc_curve_args(*args, **kwargs):
 			raise ValueError("Need either pos/neg positional args, " +
 							 "'positives'/'negatives' keyword args, " +
 							 "or 'labels'/'scores' keyword args")
+
+		ax = kwargs['ax']
+		legend = kwargs['legend']
+
 	newkwargs = copy.copy(kwargs)
-	for kw in ('positives', 'negatives', 'labels', 'scores'):
+	for kw in ('positives', 'negatives', 'labels', 'scores', 'ax', 'legend'):
 		try:
 			del newkwargs[kw]
 		except KeyError:
 			pass
-	return allscores, positives, negatives, newkwargs
+	return allscores, positives, negatives, ax, legend, newkwargs
 
 
 
