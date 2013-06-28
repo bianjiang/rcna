@@ -44,7 +44,7 @@ def roc_curve(*args, **kwargs):
 	Additional keyword arguments are passed along to the plot()
 	command used to draw the curve.
 	"""
-	allscores, positives, negatives, ax, legend, newkwargs = \
+	allscores, positives, negatives, ax, newkwargs = \
 			_parse_roc_curve_args(*args, **kwargs)
 
 	allscores = np.sort(allscores)
@@ -84,7 +84,7 @@ def roc_curve(*args, **kwargs):
 	dx = np.diff(xcoord)
 	my = (ycoord[:-1] + ycoord[1:]) / 2.
 	area = np.sum(dx * my)
-	lines = ax.plot(xcoord, ycoord, label=legend, **newkwargs)
+	lines, = ax.plot(xcoord, ycoord, **newkwargs)
 	return area, [ax, lines]
 
 def _parse_roc_curve_args(*args, **kwargs):
@@ -143,15 +143,14 @@ def _parse_roc_curve_args(*args, **kwargs):
 							 "or 'labels'/'scores' keyword args")
 
 		ax = kwargs['ax']
-		legend = kwargs['legend']
 
 	newkwargs = copy.copy(kwargs)
-	for kw in ('positives', 'negatives', 'labels', 'scores', 'ax', 'legend'):
+	for kw in ('positives', 'negatives', 'labels', 'scores', 'ax'):
 		try:
 			del newkwargs[kw]
 		except KeyError:
 			pass
-	return allscores, positives, negatives, ax, legend, newkwargs
+	return allscores, positives, negatives, ax, newkwargs
 
 
 
