@@ -264,46 +264,58 @@ var networkfiles = {
 	'2010-2010': default_opts,
 	'2011-2011': default_opts,
 	'2012-2012': default_opts,
-	'2006-2009': {
-		gravity: 0.25
-	},
-	'2010-2012': {
-		gravity: 0.25
-	},
-	'2006-2012': {
-		gravity: 0.25
-	},
-	'2006-2009-largest-component': {
-		gravity: 0.25
-	},
-	'2010-2012-largest-component': {
-		gravity: 0.25
-	},
-	'2006-2012-largest-component': {
-		gravity: 0.25
-	}
+	'2006-2009': default_opts,
+	'2010-2012': default_opts,
+	'2006-2012': default_opts
 };
 
 var createNav = function createNavBar(activeNetwork) {
+		
+		$ul = $('<ul class="nav navbar-nav"></ul>');
 
-		$ul = $('<ul class="breadcrumb"></ul>');
+		var ditems = {
+			'largest-component' : 'Largest Component',
+			'complete' : 'Complete Network'
+		};
 
 		$.each(networkfiles, function(current){
 
-			$li = $('<li></li>');
-			if(activeNetwork == current){
-				$li.text(parseNavText(current));
-			}else{
-				$a = $('<a href="#" tag="' + current + '">' + parseNavText(current) + '</a>').click(function(){
-					var y = $(this).attr('tag');
+			$li = $('<li class="dropdown"></li>');
+			
+			$a = $('<a href="#" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function(){
+					var tag = $(this).attr('tag');
 					$('#canvas > svg').hide('slow', function(){
 						$('#canvas > svg').remove();
-						d3_draw(y, networkfiles[y]);
-						createNav(y);
-					});				
+						d3_draw(tag, networkfiles[tag]);
+						createNav(tag);
+					});
 				});
-				$li.append($a);			
-			}
+
+
+			$li.append($a);
+
+    			$dropdown_toggle_a = $('<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="display:inline-block;padding-left:5px;"><b class="caret"></b></a>');
+
+    			$li.append($dropdown_toggle_a);
+    			
+    			$dul = $('<ul class="dropdown-menu"></ul>');
+
+			$.each(ditems, function(menu){
+				$action_li = $('<li></li>');
+				$action_a = $('<a href="#" tag="' + current + '-' + menu + '">' + ditems[menu]  + '</a>').click(function(){
+					var tag = $(this).attr('tag');
+					$('#canvas > svg').hide('slow', function(){
+						$('#canvas > svg').remove();
+						d3_draw(tag, networkfiles[tag]);
+						createNav(tag);
+					});
+				});
+				$action_li.append($action_a);
+				$dul.append($action_li);
+    			});
+			
+			$li.append($dul);
+			
 			$ul.append($li);
 		});
 
