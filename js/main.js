@@ -13,11 +13,11 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
     var default_opts = {
             where: "#canvas",
             r: 10,
-            width: 1200,
-            height: 1200,
+            width: 1000,
+            height: 1000,
             charge: -80,
-            gravity: 0.10,
-            linkDistance: 30,
+            gravity: 0.15,
+            linkDistance: 20,
             selfLoopLinkDistance: 20,
             nodeOpacity: .9,
             linkOpacity: .85,
@@ -91,7 +91,7 @@ var d3_draw = function d3_draw(activeNetwork, opts) {
 
 		var force = d3.layout.force()
 		.nodes(d3.values(graph.nodes))
-	      .links(graph.links)
+	      	.links(graph.links)
 		    .linkStrength(function(d) { return (d.type == "self-loop"? 1 : 0.5); })
 		    .size([opts.width, opts.height])
 		    .linkDistance(function(d) { return (d.type == "self-loop"? opts.selfLoopLinkDistance : opts.linkDistance); })
@@ -265,22 +265,22 @@ var networkfiles = {
 	'2011-2011': default_opts,
 	'2012-2012': default_opts,
 	'2006-2009': {
-		gravity: 0.15
+		gravity: 0.25
 	},
 	'2010-2012': {
-		gravity: 0.15
+		gravity: 0.25
 	},
 	'2006-2012': {
-		gravity: 0.15
+		gravity: 0.25
 	},
 	'2006-2009-largest-component': {
-		gravity: 0.15
+		gravity: 0.25
 	},
 	'2010-2012-largest-component': {
-		gravity: 0.15
+		gravity: 0.25
 	},
 	'2006-2012-largest-component': {
-		gravity: 0.15
+		gravity: 0.25
 	}
 };
 
@@ -304,7 +304,6 @@ var createNav = function createNavBar(activeNetwork) {
 				});
 				$li.append($a);			
 			}
-			$li.append($('<span class="divider">/</span>'));
 			$ul.append($li);
 		});
 
