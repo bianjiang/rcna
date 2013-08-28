@@ -276,28 +276,32 @@
                     return d.type
                 });
 
-            // A copy of the text with a thick white stroke for legibility.
-            text.append("svg:text")
-                .attr("x", 8)
-                .attr("y", ".31em")
-                .attr("class", "shadow")
-                .attr("class", function (d) {
-                    return d.type
-                })
-                .text(function (d) {
-                    return d.name;
-                });
+            // var show_id = false;
+            //  // only show a label if the node is being tracked
+            // if ($.inArray(d['name'], tracked_nodes) > -1) {
+            //     show_id = true;
+            // }
+            //     // A copy of the text with a thick white stroke for legibility.
+            //     text.append("svg:text")
+            //         .attr("x", 8)
+            //         .attr("y", ".31em")
+            //         .attr("class", "shadow")
+            //         .attr("class", function (d) {
+            //             return d.type
+            //         })
+            //         .text(function (d) {
+            //             return show_id?d.name:'';
+            //         });
 
-            text.append("svg:text")
-                .attr("x", 8)
-                .attr("y", ".31em")
-                .attr("class", function (d) {
-                    return d.type
-                })
-                .text(function (d) {
-                    return d.name;
-                });
-
+            //     text.append("svg:text")
+            //         .attr("x", 8)
+            //         .attr("y", ".31em")
+            //         .attr("class", function (d) {
+            //             return d.type
+            //         })
+            //         .text(function (d) {
+            //              return show_id?d.name:'';
+            //         });
 
             function tick() {
 
