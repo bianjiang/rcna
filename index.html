@@ -73,13 +73,26 @@
                 <div class="navbar navbar-inverse">
                     <div id="nav-bar"></div>
                 </div>
-                <div class="row">                    
+                <div class="row">
+                    <div class="network-metrics-sidebar sidebar-fixed">
+                        <div class="sidebar-fixed-inner">
+                        <h4 class="sidebar-fixed-title">Network Characteristics</h4>
+                        <div class="sidebar-fixed-content container" id="network-characteristics"></div>
+                        </div>
+                    </div>
                     <div class="legend-sidebar-fixed">
-                        <div class="row legend bg-yellow wordwrap">CTSA + PI</div>
+                        <!--<div class="row legend bg-yellow wordwrap">CTSA + PI</div>-->
                         <div class="row legend bg-green wordwrap">CTSA</div>
-                        <div class="row legend bg-purple wordwrap">PI</div>
-                        <div class="row legend bg-gray wordwrap">Investigator</div>
+                        <!--<div class="row legend bg-purple wordwrap">PI</div>--> <!-- there is not a point to distinguish PI... a person can be PI on one grant but co-i on another-->
+                        <div class="row legend bg-gray wordwrap">non-CTSA</div>
                     </div> <!-- /sidebar -->
+
+                    <div class="tracked-nodes-sidebar sidebar-fixed">
+                        <div class="sidebar-fixed-inner">
+                        <h4 class="sidebar-fixed-title">Tracked Nodes</h4>
+                        <div class="sidebar-fixed-content container" id="tracked-nodes"></div>
+                        </div>
+                    </div>
                     
                     <div id="canvas"></div>
                </div>
@@ -99,9 +112,11 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.2.2/d3.v3.min.js" charset="utf-8"></script>
+
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>        
         <script src="js/vendor/numeric-1.2.6.min.js"></script>
 
+        <script src="js/d3.tooltip.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>
