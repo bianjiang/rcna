@@ -11,6 +11,8 @@
 * Color code the nodes (make it customizable)
 * Show centrality leaders
 * Be able to track centrality leaders through time 
+* [DONE] Show local clustering coefficient of each node on node info
+* Provide help text for understanding these network characteristics
 
 
 > Identifying possible alternative futures and their warning signs

@@ -255,7 +255,7 @@
                     $content.append(node_info_row('Betweenness', d['betweenness']));
                     $content.append(node_info_row('Closeness', d['closeness']));
                     $content.append(node_info_row('Eigen Centrality', d['evcent']));
-                    $content.append(node_info_row('Clustering Coefficient', d['clustering_coefficient']));
+                    $content.append(node_info_row('Clustering Coeff', d['clustering_coefficient']));
 
                     return {
                         type: "popover",
