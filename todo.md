@@ -10,8 +10,10 @@
 * [DONE] Show global network metrics for each graph on the side
 * Color code the nodes (make it customizable)
 * Show centrality leaders
-* Be able to track centrality leaders through time
-* Show local clustering coefficient of a node to indicate whether the node is part of a local cluster.
+* Be able to track centrality leaders through time 
+* [DONE] Show local clustering coefficient of each node on node info
+* Provide help text for understanding these network characteristics
+* Show node's roles on different grant
 
 
 > Identifying possible alternative futures and their warning signs
