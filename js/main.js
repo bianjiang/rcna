@@ -152,8 +152,6 @@
                 }
             });
 
-           
-
 
 
             var isConnected = function isConnected(e, t) {
@@ -234,6 +232,10 @@
                 }).style("fill", function (node) {
                     return getColor(node, true);
                 }).on("click", function(node){
+
+                    //toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
+                    //console.log(tracked_nodes);
+                }).on("dbclick", function(node){
 
                     toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
                     console.log(tracked_nodes);
