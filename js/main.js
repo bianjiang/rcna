@@ -5,15 +5,25 @@
 
     var ignoredNodeAttributes = ['x', 'y', 'index', 'weight', 'px', 'py', 'type'];
 
-    var node_info_row = function node_info_row(display_name, value){
+    var info_row = function info_row(display_name, value){
         var $div = $('<div class="row clearfix"></div>')
-        var $label = $('<label class="pull-left" style="text-align:right !important;">' + display_name + ':</label>');
+        var $label = $('<label class="pull-left" style="margin-left: 10px; text-align:right !important; width: 150px">' + display_name + ':</label>');
         var $ins = $('<span class="pull-right" style="margin-left: 5px; text-align: left; width: 100px;"><p>' + value + '</p></div>');
         $div.append($label);
         $div.append($ins);
 
         return $div;
-    };
+    }; 
+
+    // var node_info_row = function node_info_row(display_name, value){
+    //     var $div = $('<div class="row clearfix"></div>')
+    //     var $label = $('<label class="pull-left" style="text-align:right !important;">' + display_name + ':</label>');
+    //     var $ins = $('<span class="pull-right" style="margin-left: 5px; text-align: left; width: 100px;"><p>' + value + '</p></div>');
+    //     $div.append($label);
+    //     $div.append($ins);
+
+    //     return $div;
+    // };
 
      // var c = [-1];
     // for(key in colorTypes) {
@@ -244,18 +254,18 @@
   //     <p class="form-control-static">email@example.com</p>
   //   </div>
   // </div>
-                    var $content = $('<div class="container"></div>');
-                    $content.append(node_info_row('ID', d['name']));
-                    $content.append(node_info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                    var $content = $('<div></div>');
+                    $content.append(info_row('ID', d['name']));
+                    $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
                         return letter.toUpperCase();
                     })));
-                    $content.append(node_info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
-                    $content.append(node_info_row('Degree', d['degree']));
-                    $content.append(node_info_row('Strength', d['strength']));
-                    $content.append(node_info_row('Betweenness', d['betweenness']));
-                    $content.append(node_info_row('Closeness', d['closeness']));
-                    $content.append(node_info_row('Eigen Centrality', d['evcent']));
-                    $content.append(node_info_row('Clustering Coeff', d['clustering_coefficient']));
+                    $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
+                    $content.append(info_row('Degree', d['degree']));
+                    $content.append(info_row('Strength', d['strength']));
+                    $content.append(info_row('Betweenness', d['betweenness']));
+                    $content.append(info_row('Closeness', d['closeness']));
+                    $content.append(info_row('Eigen Centrality', d['evcent']));
+                    $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
 
                     return {
                         type: "popover",
@@ -266,7 +276,8 @@
                         gravity: "right",
                         position: [d.x, d.y],
                         displacement: [r + 2, -155],
-                        mousemove: true
+                        mousemove: true,
+                        class: "node-info"
                     };
                 });
 
@@ -417,16 +428,6 @@ var default_opts = {
         '2006-2012': default_opts
     };
 
-     var network_info_row = function node_info_row(display_name, value){
-        var $div = $('<div class="row clearfix"></div>')
-        var $label = $('<label class="pull-left" style="margin-left: 10px; text-align:right !important; width: 150px">' + display_name + ':</label>');
-        var $ins = $('<span class="pull-right" style="margin-left: 5px; text-align: left; width: 120px;"><p>' + value + '</p></div>');
-        $div.append($label);
-        $div.append($ins);
-
-        return $div;
-    }; 
-
     var createNav = function createNavBar(activeNetwork) {
 
         $ul = $('<ul class="nav navbar-nav"></ul>');
@@ -487,22 +488,22 @@ var default_opts = {
         var $network_info_div = $('#network-characteristics');
         $network_info_div.empty();
         d3.json('data/' + getNetworkRoot(activeNetwork) + "-info.json", function (error, network_info) {
-            $network_info_div.append(network_info_row('FY', parseNavText(getNetworkRoot(activeNetwork))));
-            $network_info_div.append(network_info_row('# of Nodes', network_info['vs']));
-            $network_info_div.append(network_info_row('# of Edges', network_info['es']));
-            $network_info_div.append(network_info_row('Avg # of New Edges', network_info['avg_new_edges']));
-            $network_info_div.append(network_info_row('# of Edges', network_info['isolated_components']));
+            $network_info_div.append(info_row('FY', parseNavText(getNetworkRoot(activeNetwork))));
+            $network_info_div.append(info_row('# of Nodes', network_info['vs']));
+            $network_info_div.append(info_row('# of Edges', network_info['es']));
+            $network_info_div.append(info_row('Avg # of New Edges', network_info['avg_new_edges']));
+            $network_info_div.append(info_row('# of Edges', network_info['isolated_components']));
 
             $network_info_div.append($('<div class="row clearfix divider"><hr/></div>'));
             $network_info_div.append($('<div class="clearfix title "><b>Largest Component:</b></div>'));
 
-            $network_info_div.append(network_info_row('# of Nodes', network_info['largest_component']['vs']));
-            $network_info_div.append(network_info_row('# of Edges', network_info['largest_component']['es']));
-            $network_info_div.append(network_info_row('C (unweighted)', network_info['largest_component']['c_g']));
-            $network_info_div.append(network_info_row('C (weighted)', network_info['largest_component']['c_wg']));
+            $network_info_div.append(info_row('# of Nodes', network_info['largest_component']['vs']));
+            $network_info_div.append(info_row('# of Edges', network_info['largest_component']['es']));
+            $network_info_div.append(info_row('C (unweighted)', network_info['largest_component']['c_g']));
+            $network_info_div.append(info_row('C (weighted)', network_info['largest_component']['c_wg']));
             //$network_info_div.append(network_info_row('C (triplets definition)', network_info['largest_component']['c_tg']));
-            $network_info_div.append(network_info_row('L (unweighted)', network_info['largest_component']['l_g']));
-            $network_info_div.append(network_info_row('L (weighted)', network_info['largest_component']['l_wg']));
+            $network_info_div.append(info_row('L (unweighted)', network_info['largest_component']['l_g']));
+            $network_info_div.append(info_row('L (weighted)', network_info['largest_component']['l_wg']));
 
             $network_info_div.append($('<div class="row clearfix divider"><hr/></div>'));
             $network_info_div.append($('<div class="clearfix"><p><i>* C is the network <u>Clustering Coefficient</u>, and L is the network <u>Characteristic Path Length</u>.</i></p></div>'));

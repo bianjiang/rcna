@@ -14,7 +14,8 @@ d3.selection.prototype.tooltip = function(o, f) {
     gravity: "right",
     position: [100, 100],
     displacement: [0, 0],
-    mousemove: false
+    mousemove: false,
+    class: "tooltip"
   };
   optionsList = [];
   voronois = [];
@@ -42,6 +43,7 @@ d3.selection.prototype.tooltip = function(o, f) {
     sets = d3.geom.voronoi(positions);
     height = parent.attr("height");
     width = parent.attr("width");
+
     clipper = d3.geom.polygon([[0, 0], [0, height], [width, height], [width, 0]]).clip;
     clipped = positions.map(clipper);
     holder.append("g").attr("id", "clipPaths").selectAll("clipPath").data(voronois).enter().append("clipPath").attr("id", function(d, i) {
@@ -84,7 +86,8 @@ d3.selection.prototype.tooltip = function(o, f) {
     };
     el.on("mouseover", function() {
       var inner, tip;
-      tip = body.append("div").classed(options.type, true).classed(options.gravity, true).classed('fade', true).style("display", "none");
+      tip = body.append("div").attr("class", options.class).classed(options.type, true).classed(options.gravity, true).classed('fade', true).style("display", "none");
+      console.log(tip);
       if (options.type === "tooltip") {
         tip.append("div").html(options.text).attr("class", "tooltip-inner");
       }

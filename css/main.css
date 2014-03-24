@@ -64,6 +64,10 @@ code {
   right: 10%;
 }
 
+.node-info {
+  width: 300px !important;
+}
+
 .sidebar-fixed {
   position: fixed;
  /* top: 20%;
@@ -114,8 +118,6 @@ code {
 .sidebar-fixed-content {
   padding: 9px 14px;
 }
-
-
 
 .legend {
   text-align: center;
