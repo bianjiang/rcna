@@ -3,7 +3,7 @@ Research Collaboration Network Analysis
 
 Analyses of research collaboration networks based on the UAMS awarded research grants dataset collected from July 2005 to June 2013.
 
-You can see a visualization of the [networks](http://bianjiang.github.com/rcna/) built using [d3](http://d3js.org/).
+The old visualization component of RCNA has been evovled into an interactive network visual analytical toolset for studying biomedical research collaboration networks named, [CollaborationViz](http://bianjiang.github.com/rcna/).
 
 Statistics on the dataset
 ---------------------------------------
@@ -31,7 +31,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/bianjiang/rcna/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
