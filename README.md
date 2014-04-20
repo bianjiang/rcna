@@ -3,7 +3,7 @@ Research Collaboration Network Analysis
 
 Analyses of research collaboration networks based on the UAMS awarded research grants dataset collected from July 2005 to June 2013.
 
-The old visualization component of RCNA has been evovled into an interactive network visual analytical toolset for studying biomedical research collaboration networks named, [CollaborationViz](http://bianjiang.github.com/rcna/).
+The old visualization component of RCNA has evovled into an interactive network visual analytical toolset for studying biomedical research collaboration networks named, [CollaborationViz](http://bianjiang.github.com/rcna/).
 
 Statistics on the dataset
 ---------------------------------------
