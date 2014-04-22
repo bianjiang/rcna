@@ -19,11 +19,26 @@
 
     var user_options = {
         tracking: false,
-        highlight_ctsa: true
+        highlight_ctsa: true,
+        drilling: false,
+        tooltip: true,
+        connected: false
     };
    
     $('#opt_tracking').click(function(){
         user_options.tracking = $(this).prop('checked');
+        if(user_options.tracking) {
+            $('#opt_drilling').attr("checked", false);
+            user_options.drilling = false;
+        }
+    });
+
+    $('#opt_drilling').click(function(){
+        user_options.drilling = $(this).prop('checked');
+        if (user_options.drilling){
+            $('#opt_tracking').attr("checked", false);
+            user_options.tracking = false;
+        }
     });
 
     var isInExcludingList = function isInExcludingList(element, list) {
@@ -155,7 +170,63 @@
         '2006-2012': default_opts
     };
 
+    var current_complete_graph;
+    var current_graph;
     
+    var drilling_control = {
+        in_progress: false,
+        click_hack: 200
+    };
+
+    var filter_graph = function(focus_node, complete_graph) {
+        //node.focused = !node.focused;
+        var graph = {
+            links: [],
+            nodes: []
+        }
+        var keep = [];
+        complete_graph.links.forEach(function(link){
+            if(link.source == focus_node.index || link.target == focus_node.index){
+                graph.links.push($.extend(true,{}, link));
+                
+                if($.inArray(link.source, keep) == -1) {
+                    keep.push(link.source);
+                }
+
+                if($.inArray(link.target, keep) == -1) {
+                    keep.push(link.target);
+                }
+            }
+        });
+
+        complete_graph.nodes.forEach(function(node){
+            var i = $.inArray(node.index, keep);
+            if(i > -1) { // in the keep list...
+                var newNode = $.extend(true,{}, node);
+                node.focused = (node.id == focus_node.id);
+                newNode['index'] = i;
+                graph.nodes.push(newNode);
+                
+            }                        
+        });
+
+        console.log("after node");
+        console.log(graph);
+
+
+        graph.nodes.forEach(function(link){
+            console.log($.inArray(link.source, keep));
+            console.log(link);
+            console.log(keep);
+            link.source = $.inArray(link.source, keep);
+            link.target = $.inArray(link.target, keep);
+        });
+
+        console.log("after relink");
+        console.log(graph);
+        return graph;
+        
+    };
     var d3_draw = function d3_draw(activeNetwork) {
 
         var z = d3.scale.category20c();
@@ -163,8 +234,8 @@
         //var opts = $.extend({}, default_opts, opts);
         var opts = network_opts[activeNetwork];
 
-
-        d3.json('data/' + activeNetwork + ".json", function (error, graph) {
+        var draw_graph = function draw_graph(graph) {
+            console.log(graph);
 
             var link_tracks = {}, colorTypes = {};
             // Compute the distinct nodes from the links.
@@ -194,8 +265,6 @@
                     colorTypes[link.source[opts.colorField]] = 1;
                 }
             });
-
-
 
             var isConnected = function isConnected(e, t) {
                 return link_tracks[e.index + "," + t.index] || link_tracks[t.index + "," + e.index] || e.index === t.index;
@@ -237,6 +306,7 @@
                 //force.linkDistance(opts.linkDistance);
             });
 
+            d3.select('svg').remove();
             var svg = d3.select("#canvas").append("svg:svg")
                 .attr("width", opts.width)
                 .attr("height", opts.height);
@@ -273,7 +343,6 @@
                 }).style("stroke", opts.nodeStrokeColor).style("stroke-width", opts.nodeStrokeWidth).call(force.drag).style("opacity", opts.nodeOpacity), path.style("opacity", opts.linkOpacity);
             }
 
-
             var circle = svg.append("svg:g").selectAll("circle")
                 .data(force.nodes())
                 .enter().append("svg:circle")
@@ -300,52 +369,82 @@
                         toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
                         console.log(tracked_nodes);
                     }
-                }).on("dbclick", function(node){
 
+                    if(user_options.drilling) {
 
-                }).on("mouseover", function (node) {
-                    return mouseover_func(node);
-                }).on("mouseout", function (node) {
-                    return mouseout_func(node);
-                }).tooltip(function (d, i) {
-                    var r; //, svg;
-                    r = +d3.select(this).attr('r');
-                    //svg = d3.select(document.createElement("svg")).attr("height", 50);
-                    //g = svg.append("g");
-                    //g.append("rect").attr("width", r * 10).attr("height", 10);
-                    //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
-  //                   <div class="form-group">
-  //   <label class="col-lg-2 control-label">Email</label>
-  //   <div class="col-lg-10">
-  //     <p class="form-control-static">email@example.com</p>
-  //   </div>
-  // </div>
-                    var $content = $('<div></div>');
-                    $content.append(info_row('ID', d['name']));
-                    $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                        return letter.toUpperCase();
-                    })));
-                    $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
-                    $content.append(info_row('Degree', d['degree']));
-                    $content.append(info_row('Strength', d['strength']));
-                    $content.append(info_row('Betweenness', d['betweenness']));
-                    $content.append(info_row('Closeness', d['closeness']));
-                    $content.append(info_row('Eigen Centrality', d['evcent']));
-                    $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
+                        setTimeout(function(){
+                            // if (drilling_control.in_progress) { 
+                            //     drilling_control.in_progress = false;
 
-                    return {
-                        type: "popover",
-                        title: "Node Information",
-                        content: $content,
-                        detection: "shape",
-                        placement: "mouse",
-                        gravity: "right",
-                        position: [d.x, d.y],
-                        displacement: [r + 2, -155],
-                        mousemove: true,
-                        class: "node-info"
-                    };
+                                var reset = node.focused; //if the user click on the current focused node, it will just reset...
+                                
+                                if(reset){
+                                    current_graph = $.extend(true, {}, current_complete_graph);                                    
+                                }else{
+                                    current_graph = filter_graph(node, current_complete_graph);
+                                }
+
+                                var graph = $.extend(true, {}, current_graph);
+                                console.log(graph);
+                                draw_graph(graph);
+
+                            //}
+                        },drilling_control.click_hack); 
+                    }
+                }).on("dblclick", function(node){
+                    
+
                 });
+                
+                if(user_options.connected) {
+                    circle.on("mouseover", function (node) {
+                    return mouseover_func(node);
+                    }).on("mouseout", function (node) {
+                        return mouseout_func(node);
+                    });
+                }
+
+                if(user_options.tooltip) {
+                    circle.tooltip(function (d, i) {
+                        var r; //, svg;
+                        r = +d3.select(this).attr('r');
+                        //svg = d3.select(document.createElement("svg")).attr("height", 50);
+                        //g = svg.append("g");
+                        //g.append("rect").attr("width", r * 10).attr("height", 10);
+                        //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
+        //                   <div class="form-group">
+        //   <label class="col-lg-2 control-label">Email</label>
+        //   <div class="col-lg-10">
+        //     <p class="form-control-static">email@example.com</p>
+        //   </div>
+        // </div>
+                        var $content = $('<div></div>');
+                        $content.append(info_row('ID', d['name']));
+                        $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                            return letter.toUpperCase();
+                        })));
+                        $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
+                        $content.append(info_row('Degree', d['degree']));
+                        $content.append(info_row('Strength', d['strength']));
+                        $content.append(info_row('Betweenness', d['betweenness']));
+                        $content.append(info_row('Closeness', d['closeness']));
+                        $content.append(info_row('Eigen Centrality', d['evcent']));
+                        $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
+
+                        return {
+                            type: "popover",
+                            title: "Node Information",
+                            content: $content,
+                            detection: "shape",
+                            placement: "mouse",
+                            gravity: "right",
+                            position: [d.x, d.y],
+                            displacement: [r + 2, -155],
+                            mousemove: true,
+                            class: "node-info"
+                        };                   
+                    });
+                }
 
             var text = svg.append("svg:g").selectAll("g")
                 .data(force.nodes())
@@ -428,13 +527,44 @@
                     return "translate(" + d.x + "," + d.y + ")";
                 });
                 /*
-				.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
-	        	.attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
-				*/
+                .attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
+                .attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
+                */
                 text.attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
             }
+        };
+
+        $('#opt_tooltip').click(function(){
+            user_options.tooltip = $(this).prop('checked');
+
+            if(user_options.tooltip) {
+                $('#opt_connected').attr("checked", false);
+                user_options.connected = false;
+            }
+            setTimeout(function(){
+                var graph = $.extend(true, {}, current_graph);
+                draw_graph(graph);
+            }, 200);            
+        });
+
+        $('#opt_connected').click(function(){
+            user_options.connected = $(this).prop('checked');
+            if (user_options.connected){
+                $('#opt_tooltip').attr("checked", false);
+                user_options.tooltip = false;
+            }
+            setTimeout(function(){
+                var graph = $.extend(true, {}, current_graph);
+                draw_graph(graph);
+            }, 200);
+        });
+
+        d3.json('data/' + activeNetwork + ".json", function (error, graph) {
+            current_graph = $.extend(true, {}, graph);
+            current_complete_graph = $.extend(true, {}, graph);
+            draw_graph(graph);         
         });
     };
 
