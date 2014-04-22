@@ -87,7 +87,7 @@ d3.selection.prototype.tooltip = function(o, f) {
     el.on("mouseover", function() {
       var inner, tip;
       tip = body.append("div").attr("class", options.class).classed(options.type, true).classed(options.gravity, true).classed('fade', true).style("display", "none");
-      console.log(tip);
+      //console.log(tip);
       if (options.type === "tooltip") {
         tip.append("div").html(options.text).attr("class", "tooltip-inner");
       }

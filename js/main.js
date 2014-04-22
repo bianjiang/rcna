@@ -93,7 +93,14 @@
         node_element.attr("r",size);
         render_tracked_nodes_sidebar();
     };
+
+    var user_options = {
+        tracking: false
+    };
    
+    $('#opt_tracking').click(function(){
+        user_options.tracking = $(this).prop('checked');
+    });
 
     var d3_draw = function d3_draw(activeNetwork, opts) {
 
@@ -232,13 +239,13 @@
                 }).style("fill", function (node) {
                     return getColor(node, true);
                 }).on("click", function(node){
-
-                    //toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
-                    //console.log(tracked_nodes);
+                    if(user_options.tracking){
+                        toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
+                        console.log(tracked_nodes);
+                    }
                 }).on("dbclick", function(node){
 
-                    toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
-                    console.log(tracked_nodes);
+
                 }).on("mouseover", function (node) {
                     return mouseover_func(node);
                 }).on("mouseout", function (node) {

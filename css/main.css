@@ -47,7 +47,7 @@ code {
 
 .legend-sidebar-fixed {
    position:fixed;
-   top:20%;
+   top:15%;
    width: 150px;
    right:10%;
 }
@@ -58,8 +58,14 @@ code {
   left: 2%;
 }
 
+.options-sidebar {
+  top: 35%;
+  width: 150px;
+  right: 10%;
+}
+
 .tracked-nodes-sidebar {
-  top: 45%;
+  top: 50%;
   width: 150px;
   right: 10%;
 }
