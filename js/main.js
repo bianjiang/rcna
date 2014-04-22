@@ -20,7 +20,7 @@
     var user_options = {
         tracking: false,
         highlight_ctsa: true,
-        drilling: false,
+        drilling: true,
         tooltip: true,
         connected: false
     };
@@ -113,7 +113,7 @@
 
     };
 
-    var toggle_tracked_node = function(node, node_element, original_color, original_size) {
+    var toggle_tracked_node = function toggle_tracked_node(node, node_element, original_color, original_size) {
         var exist = false;
         var color = original_color; // original node color before being tracked
         var size = original_size;
@@ -178,16 +178,28 @@
         click_hack: 200
     };
 
-    var filter_graph = function(focus_node, complete_graph) {
+    var filter_graph = function filter_graph(focus_node, complete_graph) {
         //node.focused = !node.focused;
         var graph = {
             links: [],
             nodes: []
         }
         var keep = [];
+
+
+        var c_focus_node;
+
+        complete_graph.nodes.some(function(node){
+            if(node.id == focus_node.id){
+                c_focus_node = $.extend(true, {}, node);
+                return true;
+            }
+            return false;
+        });
+
         complete_graph.links.forEach(function(link){
-            if(link.source == focus_node.index || link.target == focus_node.index){
-                graph.links.push($.extend(true,{}, link));
+            if(link.source == c_focus_node.index || link.target == c_focus_node.index){
+                graph.links.push($.extend(true, {}, link));
                 
                 if($.inArray(link.source, keep) == -1) {
                     keep.push(link.source);
@@ -203,30 +215,24 @@
             var i = $.inArray(node.index, keep);
             if(i > -1) { // in the keep list...
                 var newNode = $.extend(true,{}, node);
-                node.focused = (node.id == focus_node.id);
-                newNode['index'] = i;
+                newNode.focused = (node.id == c_focus_node.id);
+                //newNode['index'] = i;
                 graph.nodes.push(newNode);
                 
             }                        
         });
 
-        console.log("after node");
-        console.log(graph);
 
-
-        graph.nodes.forEach(function(link){
-            console.log($.inArray(link.source, keep));
-            console.log(link);
-            console.log(keep);
+        graph.links.forEach(function(link){
             link.source = $.inArray(link.source, keep);
             link.target = $.inArray(link.target, keep);
         });
 
-        console.log("after relink");
-        console.log(graph);
         return graph;
         
     };
+
+
     var d3_draw = function d3_draw(activeNetwork) {
 
         var z = d3.scale.category20c();
@@ -348,7 +354,7 @@
                 .enter().append("svg:circle")
                 .attr("r", function (d) {
 
-                    return ($.inArray(d['name'], tracked_nodes) > -1) ? opts.r * 1.5:opts.r;
+                    return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
                     //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
                 })
                 .call(force.drag)
@@ -375,7 +381,7 @@
                         setTimeout(function(){
                             // if (drilling_control.in_progress) { 
                             //     drilling_control.in_progress = false;
-
+                            console.log(node);
                                 var reset = node.focused; //if the user click on the current focused node, it will just reset...
                                 
                                 if(reset){
@@ -385,7 +391,6 @@
                                 }
 
                                 var graph = $.extend(true, {}, current_graph);
-                                console.log(graph);
                                 draw_graph(graph);
 
                             //}
