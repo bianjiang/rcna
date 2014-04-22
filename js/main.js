@@ -172,6 +172,7 @@
 
     var current_complete_graph;
     var current_graph;
+    var current_focuse_node;
     
     var drilling_control = {
         in_progress: false,
@@ -190,12 +191,19 @@
         var c_focus_node;
 
         complete_graph.nodes.some(function(node){
-            if(node.id == focus_node.id){
+            if(node.name == focus_node.name){
                 c_focus_node = $.extend(true, {}, node);
                 return true;
             }
             return false;
         });
+
+        //console.log(c_focus_node);
+        if(!c_focus_node) {
+            alert("The focused node does not exist in this snapshot... Reset and try another one...");
+            console.log("The focused node does not exist in this snapshot... Reset and try another one...");
+            return $.extend(true, {}, complete_graph);
+        }
 
         complete_graph.links.forEach(function(link){
             if(link.source == c_focus_node.index || link.target == c_focus_node.index){
@@ -215,7 +223,7 @@
             var i = $.inArray(node.index, keep);
             if(i > -1) { // in the keep list...
                 var newNode = $.extend(true,{}, node);
-                newNode.focused = (node.id == c_focus_node.id);
+                newNode.focused = (node.name == c_focus_node.name);
                 //newNode['index'] = i;
                 graph.nodes.push(newNode);
                 
@@ -241,7 +249,6 @@
         var opts = network_opts[activeNetwork];
 
         var draw_graph = function draw_graph(graph) {
-            console.log(graph);
 
             var link_tracks = {}, colorTypes = {};
             // Compute the distinct nodes from the links.
@@ -369,29 +376,31 @@
 
                     return c;
                 }).style("fill", function (node) {
-                    return getColor(node, true);
+                    return node.focused?tracked_node_color:getColor(node, true);
                 }).on("click", function(node){
                     if(user_options.tracking){
                         toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
-                        console.log(tracked_nodes);
+                        //console.log(tracked_nodes);
                     }
 
                     if(user_options.drilling) {
+                        
 
                         setTimeout(function(){
-                            // if (drilling_control.in_progress) { 
-                            //     drilling_control.in_progress = false;
-                            console.log(node);
-                                var reset = node.focused; //if the user click on the current focused node, it will just reset...
-                                
-                                if(reset){
-                                    current_graph = $.extend(true, {}, current_complete_graph);                                    
-                                }else{
-                                    current_graph = filter_graph(node, current_complete_graph);
-                                }
+                            if (!drilling_control.in_progress) { 
+                                drilling_control.in_progress = true;
+                            }
+                            current_focuse_node = $.extend(true, {}, node);
+                            //var reset = node.focused; //if the user click on the current focused node, it will just reset...
+                            
+                            // if(reset){
+                            //     current_graph = $.extend(true, {}, current_complete_graph);                                    
+                            // }else{
+                            current_graph = filter_graph(node, current_complete_graph);
+                            //}
 
-                                var graph = $.extend(true, {}, current_graph);
-                                draw_graph(graph);
+                            var graph = $.extend(true, {}, current_graph);
+                            draw_graph(graph);
 
                             //}
                         },drilling_control.click_hack); 
@@ -464,6 +473,15 @@
                 circle.style("fill", function (node) {
                     return getColor(node, true);
                 });
+            });
+
+            $('#opt_drilling_reset').click(function(){
+                setTimeout(function(){
+                    current_graph = $.extend(true, {}, current_complete_graph);
+                    var graph = $.extend(true, {}, current_graph);
+                    current_focuse_node = null;
+                    draw_graph(graph);
+                }, 200);
             });
 
             // var show_id = false;
@@ -567,8 +585,15 @@
         });
 
         d3.json('data/' + activeNetwork + ".json", function (error, graph) {
-            current_graph = $.extend(true, {}, graph);
             current_complete_graph = $.extend(true, {}, graph);
+
+            if(current_focuse_node && drilling_control.in_progress) {
+                current_graph = filter_graph(current_focuse_node, current_complete_graph);
+            }else{
+                current_graph = $.extend(true, {}, current_complete_graph);
+            }
+            
+            graph = $.extend(true, {}, current_graph);
             draw_graph(graph);         
         });
     };
