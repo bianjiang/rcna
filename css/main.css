@@ -45,11 +45,33 @@ code {
   font-size: 80%;
 }
 
-.legend-sidebar-fixed {
+/*.label-ctsa {
+  background-color: #ADFF2F;
+}*/
+
+.graph-layout-opt-sidebar-fixed {
    position:fixed;
    top:15%;
-   width: 150px;
+   width: 350px;
    right:10%;
+}
+
+.graph-layout-opt-sidebar-fixed .row {
+  margin-top: 5px;
+}
+.graph-layout-opt-sidebar-fixed .row label {
+  margin-left: 30px;
+  text-align:right !important;
+  width: 100px;
+}
+
+.graph-layout-opt-sidebar-fixed .row .slider-wrap {
+  margin-left: 10px;
+  width:200px;
+}
+
+.graph-layout-opt-sidebar-fixed .row .slider-text {
+  margin-left:5px;
 }
 
 .network-metrics-sidebar {
@@ -60,13 +82,13 @@ code {
 
 .options-sidebar {
   top: 35%;
-  width: 150px;
+  width: 200px;
   right: 10%;
 }
 
 .tracked-nodes-sidebar {
   top: 50%;
-  width: 150px;
+  width: 200px;
   right: 10%;
 }
 

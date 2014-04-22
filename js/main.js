@@ -1,4 +1,31 @@
 (function () {
+    $('#force-gravity').slider({
+          formater: function(value) {
+            return 'Current value: '+parseFloat(value)/100;
+          }
+        });
+
+    $('#force-charge').slider({
+          formater: function(value) {
+            return 'Current value: '+value;
+          }
+        });
+
+    $('#force-link-distance').slider({
+          formater: function(value) {
+            return 'Current value: '+value;
+          }
+        });
+
+    var user_options = {
+        tracking: false,
+        highlight_ctsa: true
+    };
+   
+    $('#opt_tracking').click(function(){
+        user_options.tracking = $(this).prop('checked');
+    });
+
     var isInExcludingList = function isInExcludingList(element, list) {
         return ($.inArray(element, list) > -1);
     }
@@ -47,8 +74,8 @@
         // } else if (!node.ctsa && node.role == 'Principal Investigator') {
         //     c = '#800080';
         // }
-        if (node.ctsa) {
-            c = '#ADFF2F';
+        if (node.ctsa && user_options.highlight_ctsa) {
+            c = '#5cb85c';//'#ADFF2F';
         }
 
         if(check_tracked_nodes) {
@@ -94,25 +121,13 @@
         render_tracked_nodes_sidebar();
     };
 
-    var user_options = {
-        tracking: false
-    };
-   
-    $('#opt_tracking').click(function(){
-        user_options.tracking = $(this).prop('checked');
-    });
-
-    var d3_draw = function d3_draw(activeNetwork, opts) {
-
-        var z = d3.scale.category20c();
-
-        var default_opts = {
+    var default_opts = {
             where: "#canvas",
             r: 10,
             width: 1000,
             height: 1000,
             charge: -80,
-            gravity: 0.15,
+            gravity: 0.25,
             linkDistance: 20,
             selfLoopLinkDistance: 20,
             nodeOpacity: .9,
@@ -125,7 +140,29 @@
             colorField: "color",
             startingColor: "#ccc",
             endingColor: "#BD0026"
-        }, opts = $.extend({}, default_opts, opts);
+        };
+
+    var network_opts = {
+        '2006-2006': default_opts,
+        '2007-2007': default_opts,
+        '2008-2008': default_opts,
+        '2009-2009': default_opts,
+        '2010-2010': default_opts,
+        '2011-2011': default_opts,
+        '2012-2012': default_opts,
+        '2006-2009': default_opts,
+        '2010-2012': default_opts,
+        '2006-2012': default_opts
+    };
+
+    
+    var d3_draw = function d3_draw(activeNetwork) {
+
+        var z = d3.scale.category20c();
+
+        //var opts = $.extend({}, default_opts, opts);
+        var opts = network_opts[activeNetwork];
+
 
         d3.json('data/' + activeNetwork + ".json", function (error, graph) {
 
@@ -147,7 +184,6 @@
                     type: t
                 });
                 link.target = graph.nodes[link.target]; // || (graph.nodes[link.target] = {name: link.target});
-
 
 
                 link_tracks[link.source.index + "," + link.target.index] = 1;
@@ -179,6 +215,27 @@
                 .charge(opts.charge)
                 .on("tick", tick)
                 .start();
+
+            $('#force-gravity').on('slide', function(e){
+                opts.gravity = parseFloat(e.value)/100;
+                $('#force-gravity-value').text(opts.gravity);
+                force.gravity(opts.gravity);
+                network_opts[activeNetwork] = opts;
+            });
+
+            $('#force-charge').on('slide', function(e){
+                opts.charge = parseFloat(e.value);
+                $('#force-charge-value').text(opts.charge);
+                force.charge(opts.charge);
+                network_opts[activeNetwork] = opts;
+            });
+
+            $('#force-link-distance').on('slide', function(e){
+                opts.linkDistance = parseFloat(e.value);
+                $('#force-link-distance-value').text(opts.linkDistance);
+                network_opts[activeNetwork] = opts;
+                //force.linkDistance(opts.linkDistance);
+            });
 
             var svg = d3.select("#canvas").append("svg:svg")
                 .attr("width", opts.width)
@@ -296,6 +353,14 @@
                 .attr("class", function (d) {
                     return d.type
                 });
+
+            // bind options to highlight ctsa nodes...
+            $('#opt_highlight_ctsa').click(function(){
+                user_options.highlight_ctsa = $(this).prop('checked');
+                circle.style("fill", function (node) {
+                    return getColor(node, true);
+                });
+            });
 
             // var show_id = false;
             //  // only show a label if the node is being tracked
@@ -420,22 +485,6 @@ var default_opts = {
         }
 */
 
-    var default_opts = {
-        gravity: 0.25
-    };
-
-    var networkfiles = {
-        '2006-2006': default_opts,
-        '2007-2007': default_opts,
-        '2008-2008': default_opts,
-        '2009-2009': default_opts,
-        '2010-2010': default_opts,
-        '2011-2011': default_opts,
-        '2012-2012': default_opts,
-        '2006-2009': default_opts,
-        '2010-2012': default_opts,
-        '2006-2012': default_opts
-    };
 
     var createNav = function createNavBar(activeNetwork) {
 
@@ -446,7 +495,7 @@ var default_opts = {
             'complete': 'Complete Network'
         };
 
-        $.each(networkfiles, function (current) {
+        $.each(network_opts, function (current) {
 
             if (current == getNetworkRoot(activeNetwork)) {
                 $li = $('<li class="dropdown active"></li>');
@@ -459,7 +508,7 @@ var default_opts = {
                 var tag = $(this).attr('tag');
                 $('#canvas > svg').hide('slow', function () {
                     $('#canvas > svg').remove();
-                    d3_draw(tag, networkfiles[tag]);
+                    d3_draw(tag);
                     createNav(tag);
                 });
             });
@@ -479,7 +528,7 @@ var default_opts = {
                     var tag = $(this).attr('tag');
                     $('#canvas > svg').hide('slow', function () {
                         $('#canvas > svg').remove();
-                        d3_draw(tag, networkfiles[tag]);
+                        d3_draw(tag);
                         createNav(tag);
                     });
                 });
@@ -526,7 +575,7 @@ var default_opts = {
 
         createNav(activeNetwork);
 
-        d3_draw(activeNetwork, networkfiles[activeNetwork]);
+        d3_draw(activeNetwork);
 
         render_tracked_nodes_sidebar();
     });
