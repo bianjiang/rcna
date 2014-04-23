@@ -4,9 +4,9 @@
 '''
 	networks.py for network_analysis
 	generate network from grant data
-''' 
+'''
 __appname__ = 'Research Collaboration Social Network Analysis'
-__author__  = 'Jiang Bian'
+__author__ = 'Jiang Bian'
 __version__ = '0.0.1'
 __license__ = 'MIT'
 
@@ -24,133 +24,149 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 class ResearchCollaborationNetwork(object):
 
-	def g():
-		doc = 'The internal igraph object.'
-		def fget(self):
-			return self._g
-		def fset(self, value):
-			self._g = value
-		def fdel(self):
-			del self._g
-		return locals()
-	g = property(**g())
+    def g():
+        doc = 'The internal igraph object.'
 
-	def nodes():
-		doc = 'The internal nodes list.'
-		def fget(self):
-			return self._nodes
-		def fset(self, value):
-			self._nodes = value
-		def fdel(self):
-			del self._nodes
-		return locals()
-	nodes = property(**nodes())
+        def fget(self):
+            return self._g
 
-	def edges():
-		doc = 'The internal edge list, src -> dest + weight'
-		def fget(self):
-			return self._edges
-		def fset(self, value):
-			self._edges = value
-		def fdel(self):
-			del self._nodes
-		return locals()
-	edges = property(**edges())
+        def fset(self, value):
+            self._g = value
 
-	#internal index when creating from raw, don't get confused with igraph node.index
-	@staticmethod
-	def node_index(nodes, id):
-		if id not in nodes:
-			nodes[id] = {'index_': len(nodes)} # autoincrement, start with 0
+        def fdel(self):
+            del self._g
+        return locals()
+    g = property(**g())
 
-		return nodes[id]['index_']	
+    def nodes():
+        doc = 'The internal nodes list.'
 
-	@classmethod
-	def read(cls, filename):
+        def fget(self):
+            return self._nodes
 
-		g = igraph.Graph.Read(filename,format="graphml")
-		
-		# doesn't seem to have a need to recrate the nodes and edges from loaded graph
-		nodes = {}
-		edges = {}
+        def fset(self, value):
+            self._nodes = value
 
-		for node in g.vs:
-			ResearchCollaborationNetwork.node_index(nodes, int(node['name']))
+        def fdel(self):
+            del self._nodes
+        return locals()
+    nodes = property(**nodes())
 
-		for edge in g.es:
-			v1 = int(g.vs[edge.source]['name'])
-			v2 = int(g.vs[edge.target]['name'])
+    def edges():
+        doc = 'The internal edge list, src -> dest + weight'
 
-			m = min(v1, v2)
-			n = max(v1, v2)
+        def fget(self):
+            return self._edges
 
-			#always min-max
-			key = '%d-%d'%(m,n)
-			#logger.info(key)
-			edges[key] = edge['weight']
+        def fset(self, value):
+            self._edges = value
 
+        def fdel(self):
+            del self._nodes
+        return locals()
+    edges = property(**edges())
 
-		return cls(nodes, edges, g)
+    # internal index when creating from raw, don't get confused with igraph
+    # node.index
+    @staticmethod
+    def node_index(nodes, id):
+        if id not in nodes:
+            nodes[id] = {'index_': len(nodes)}  # autoincrement, start with 0
 
+        return nodes[id]['index_']
 
-	def __init__(self, nodes = None, edges = None, g = None):
-		self.nodes = nodes
-		self.edges = edges
-		self.g = g
+    @classmethod
+    def read(cls, filename):
 
-	@staticmethod
-	def simplify(g):
-		#remove multiple, loops
-		g = g.simplify(multiple=True, loops=True,combine_edges=sum)
+        g = igraph.Graph.Read(filename, format="graphml")
 
-		# convert to undirected
-	  	g.to_undirected(combine_edges=sum)
+        # doesn't seem to have a need to recrate the nodes and edges from
+        # loaded graph
+        nodes = {}
+        edges = {}
 
-	  	# delete unlinked nodes
-	  	g.vs.select(_degree = 0).delete()
+        for node in g.vs:
+            ResearchCollaborationNetwork.node_index(nodes, int(node['name']))
 
-	  	return g
+        for edge in g.es:
+            v1 = int(g.vs[edge.source]['name'])
+            v2 = int(g.vs[edge.target]['name'])
 
-	#get the largest component (the component with the most connected nodes)
-	@staticmethod
-	def largest_component(g):
-		g = ResearchCollaborationNetwork.simplify(g)
+            m = min(v1, v2)
+            n = max(v1, v2)
 
-		g_ = None
-		vs_ = 0
-		for gs in g.decompose(mode=igraph.STRONG):
+            # always min-max
+            key = '%d-%d' % (m, n)
+            # logger.info(key)
+            edges[key] = edge['weight']
 
+        return cls(nodes, edges, g)
 
-			if len(gs.vs) > vs_:
-				vs_ = len(gs.vs)
-				g_ = gs
+    def write(self, filename):
+        '''
+        Save the graph into gramml format
+        '''
+        #startBudgetYear = int(str(budgetYears[0]))
+        #endBudgetYear = int(str(budgetYears[-1]))
 
-		return g_
+        #filename = '%s/result/%d-%d.%s'%(root_folder(),startBudgetYear, endBudgetYear, format) if extra == None else '%s/result/%d-%d.%s.%s'%(root_folder(),startBudgetYear, endBudgetYear, extra,format)
+        igraph.write(self.g, filename, format='graphml')
 
-	# in graphml format, the nodes can have many attributes, so we don't need to generate the node attributes from raw data anymore
-	@staticmethod
-	def d3(g, filename):
+    def __init__(self, nodes=None, edges=None, g=None):
+        self.nodes = nodes
+        self.edges = edges
+        self.g = g
 
-		d3_results = {}
-		d3_nodes = []
-		d3_edges = []		
+    @staticmethod
+    def simplify(g):
+        # remove multiple, loops
+        g = g.simplify(multiple=True, loops=True, combine_edges=sum)
 
-		for node in g.vs:
-			d3_nodes.append(dict({'index':int(node.index)}.items() + node.attributes().items()))
+        # convert to undirected
+        g.to_undirected(combine_edges=sum)
 
-		for edge in g.es:
-			d3_edges.append(dict({'source':edge.source, 'target':edge.target}.items() + edge.attributes().items()))
+        # delete unlinked nodes
+        g.vs.select(_degree=0).delete()
 
-		d3_results['nodes'] = d3_nodes
-		d3_results['links'] = d3_edges
+        return g
 
+    # get the largest component (the component with the most connected nodes)
+    @staticmethod
+    def largest_component(g):
+        g = ResearchCollaborationNetwork.simplify(g)
 
-		## This part is used to generate the d3 json for visualization
-		with open(filename, 'w') as outfile:
-	  		json.dump(d3_results, outfile)
+        g_ = None
+        vs_ = 0
+        for gs in g.decompose(mode=igraph.STRONG):
 
-	  	logger.info('convert to d3 json into: %s'%filename)
+            if len(gs.vs) > vs_:
+                vs_ = len(gs.vs)
+                g_ = gs
 
+        return g_
 
+    # in graphml format, the nodes can have many attributes, so we don't need
+    # to generate the node attributes from raw data anymore
+    @staticmethod
+    def d3(g, filename):
 
+        d3_results = {}
+        d3_nodes = []
+        d3_edges = []
 
+        for node in g.vs:
+            d3_nodes.append(
+                dict({'index': int(node.index)}.items() + node.attributes().items()))
+
+        for edge in g.es:
+            d3_edges.append(
+                dict({'source': edge.source, 'target': edge.target}.items() + edge.attributes().items()))
+
+        d3_results['nodes'] = d3_nodes
+        d3_results['links'] = d3_edges
+
+        # This part is used to generate the d3 json for visualization
+        with open(filename, 'w') as outfile:
+            json.dump(d3_results, outfile)
+
+        logger.info('convert to d3 json into: %s' % filename)
