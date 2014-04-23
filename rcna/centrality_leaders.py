@@ -91,6 +91,7 @@ def update_graphml(budgetYears):
 
     network = load_network_for(budgetYears)
 
+    network.g.vs['centrality_leader'] = 0
     g = network.g.copy()
 
     g = ResearchCollaborationNetwork.largest_component(g)
