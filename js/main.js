@@ -5,7 +5,7 @@
 
         var sy = $.trim(s[0]);
         var ey = $.trim(s[1]);
-        
+
         return sy + '-' + ey;
     };
 
@@ -27,7 +27,7 @@
           }
         });
 
-    
+
     $('#prediction_top_n').slider({
           formater: function(value) {
             return 'Top '+ value + '% predictions';
@@ -45,7 +45,7 @@
             val: 0.1
         }
     };
-   
+
     $('#opt_tracking').click(function(){
         user_options.tracking = $(this).prop('checked');
         if(user_options.tracking) {
@@ -76,22 +76,7 @@
         $div.append($ins);
 
         return $div;
-    }; 
-
-    // var node_info_row = function node_info_row(display_name, value){
-    //     var $div = $('<div class="row clearfix"></div>')
-    //     var $label = $('<label class="pull-left" style="text-align:right !important;">' + display_name + ':</label>');
-    //     var $ins = $('<span class="pull-right" style="margin-left: 5px; text-align: left; width: 100px;"><p>' + value + '</p></div>');
-    //     $div.append($label);
-    //     $div.append($ins);
-
-    //     return $div;
-    // };
-
-     // var c = [-1];
-    // for(key in colorTypes) {
-    //  c.push(key);
-    // }
+    };
 
     // generate color chart...
     //var colors = d3.scale.linear().domain([d3.min(c), d3.max(c)]).range([opts.startingColor, opts.endingColor]);
@@ -103,13 +88,7 @@
         //console.log(node[opts.colorField]);
         // there is not a point to distinguish PI... a person can be PI on one grant but co-i on another
         var c = '#cccccc'; //node[opts.colorField];//node.ctsa ? '#ADFF2F' : node[opts.colorField] || -1;
-        // if (node.ctsa && node.role != 'Principal Investigator') {
-        //     c = '#ADFF2F';
-        // } else if (node.ctsa && node.role == 'Principal Investigator') {
-        //     c = '#FFFF00';
-        // } else if (!node.ctsa && node.role == 'Principal Investigator') {
-        //     c = '#800080';
-        // }
+
         if (node.ctsa && user_options.highlight_ctsa) {
             c = '#5cb85c';//'#ADFF2F';
         }
@@ -194,22 +173,49 @@
     var current_complete_graph;
     var current_graph;
     var current_focuse_node;
-    
+
     var drilling_control = {
         in_progress: false,
         click_hack: 200
     };
 
+    var find_node = function find_node(nodes, name) {
+
+        var found;
+
+        nodes.forEach(function(node){
+            if(node.name == name) {
+                found = node;
+            }
+        })
+
+        return found;
+    };
+
+    var find_link = function find_link(links, names) {
+        var found;
+
+        var source_name = names[0], target_name = names[1];
+
+        links.forEach(function(link){
+
+            if((link.source.name == source_name && link.target.name == target_name) || (link.source.name == target_name && link.target.name == source_name)){
+                found = link;
+            }
+        });
+
+        return found;
+    };
+
     var filter_graph = function filter_graph(focus_node, complete_graph) {
         //node.focused = !node.focused;
-        var graph = {
-            links: [],
-            nodes: []
-        }
+
+        var links = [], nodes = [];
+
         var keep = [];
 
-
         var c_focus_node;
+
 
         complete_graph.nodes.some(function(node){
             if(node.name == focus_node.name){
@@ -219,53 +225,55 @@
             return false;
         });
 
-        //console.log(c_focus_node);
 
-        //console.log(c_focus_node);
         if(!c_focus_node) {
             alert("The focused node does not exist in this snapshot... Reset and try another one...");
             console.log("The focused node does not exist in this snapshot... Reset and try another one...");
             return $.extend(true, {}, complete_graph);
         }
 
+        // find all nodes that links to the focus node...
         complete_graph.links.forEach(function(link){
+
             if(link.source == c_focus_node.index || link.target == c_focus_node.index){
-                graph.links.push($.extend(true, {}, link));
-                
+                //links.push($.extend(true, {}, link));
                 if($.inArray(link.source, keep) == -1) {
+                    var newNode = $.extend(true, {}, complete_graph.nodes[link.source]);
+                    newNode.focused = (c_focus_node.name == newNode.name);
+                    nodes.push(newNode);
                     keep.push(link.source);
                 }
 
                 if($.inArray(link.target, keep) == -1) {
+                    var newNode = $.extend(true, {}, complete_graph.nodes[link.target]);
+                    newNode.focused = (c_focus_node.name == newNode.name);
+                    nodes.push(newNode);
                     keep.push(link.target);
                 }
+
             }
         });
 
-        complete_graph.nodes.forEach(function(node){
-            var i = $.inArray(node.index, keep);
-            if(i > -1) { // in the keep list...
-                var newNode = $.extend(true,{}, node);
-                newNode.focused = (node.name == c_focus_node.name);
-                //newNode['index'] = i;
-                graph.nodes.push(newNode);
-                
-            }                        
+        //make up the links that are between nodes in this list...
+        complete_graph.links.forEach(function(link){
+            if($.inArray(link.source, keep) > -1 && $.inArray(link.target, keep) > -1) {
+                links.push({
+                    source: find_node(nodes, complete_graph.nodes[link.source].name),
+                    target: find_node(nodes, complete_graph.nodes[link.target].name),
+                    weight: link.weight
+                });
+            }
         });
 
+        return {
+            links: links,
+            nodes: nodes
+        };
 
-        graph.links.forEach(function(link){
-            link.source = $.inArray(link.source, keep);
-            link.target = $.inArray(link.target, keep);
-        });
-
-        return graph;
-        
     };
 
     var get_graph = function get_graph(graph, opts) {
 
-        console.log(opts);
         var link_tracks = {}, colorTypes = {};
             // Compute the distinct nodes from the links.
             graph.links.forEach(function (link) {
@@ -310,37 +318,9 @@
         [].push.apply(graph.links, new_graph.links);
     };
 
-    var find_node = function find_node(nodes, name) {
-
-        var found;
-
-        nodes.forEach(function(node){
-            if(node.name == name) {
-                found = node;
-            }
-        })
-
-        return found;
-    };
-
-    var find_link = function find_link(links, names) {
-        var found;
-
-        var source_name = names[0], target_name = names[1];
-
-        links.forEach(function(link){
-
-            if((link.source.name == source_name && link.target.name == target_name) || (link.source.name == target_name && link.target.name == source_name)){
-                found = link;
-            }
-        });
-
-        return found;
-    };
-
     //add predicted links to current_graph and update graph
     var add_predicted_links = function add_predicted_links(graph, current_graph, rwrs, confidence) {
-        
+
         var gg = $.extend(true, {}, current_graph);
 
         var ss = [];
@@ -428,9 +408,6 @@
 
 
                 path.attr("class", function (d) {
-                        if(d.predicted){
-                            console.log(d);
-                        }
                         return "link " + d.type + (d.predicted?" predicted":"");
                     })
                     .attr("style", function (d) {
@@ -473,14 +450,14 @@
                         }
 
                         if(user_options.drilling) {
-                            
+
 
                             setTimeout(function(){
-                                if (!drilling_control.in_progress) { 
+                                if (!drilling_control.in_progress) {
                                     drilling_control.in_progress = true;
                                 }
                                 current_focuse_node = $.extend(true, {}, node);
-                                
+
 
                                 replace_graph(graph, filter_graph(node, current_complete_graph));
                                 // graph.nodes.splice(0, graph.nodes.length);
@@ -488,21 +465,21 @@
 
                                 // [].push.apply(graph.nodes, new_graph.nodes);
                                 // [].push.apply(graph.links, new_graph.links);
-                                
+
                                 //console.log(graph);
 
                                 update();
-                                
-                                
+
+
 
                                 //}
-                            },drilling_control.click_hack); 
+                            },drilling_control.click_hack);
                         }
                     }).on("dblclick", function(node){
-                        
+
 
                     });
-                    
+
                     if(user_options.connected) {
                         circle.on("mouseover", function (node) {
                         return mouseover_func(node);
@@ -549,7 +526,7 @@
                                 displacement: [r + 2, -155],
                                 mousemove: true,
                                 class: "node-info"
-                            };                   
+                            };
                         });
                     }
 
@@ -571,7 +548,7 @@
 
                         return c;
                     }).style("fill", function (node) {
-                        return node.focused?tracked_node_color:getColor(node, true);
+                        return (node.focused || node.found)?tracked_node_color:getColor(node, true);
                     })
 
                     // bind options to highlight ctsa nodes...
@@ -592,40 +569,47 @@
                         return d.type
                     });
 
+                // var show_id = true;
+                // //  // only show a label if the node is being tracked
+                // // if ($.inArray(d['name'], tracked_nodes) > -1) {
+                // //     show_id = true;
+                // // }
+                // // A copy of the text with a thick white stroke for legibility.
+                // text.append("svg:text")
+                //     .attr("x", 8)
+                //     .attr("y", ".31em")
+                //     .attr("class", "shadow")
+                //     .attr("class", function (d) {
+                //         return d.type
+                //     })
+                //     .text(function (d) {
+                //         console.log(d);
+                //         return show_id?d.name:'';
+                //     });
+
+                // text.append("svg:text")
+                //     .attr("x", 8)
+                //     .attr("y", ".31em")
+                //     .attr("class", function (d) {
+                //         //console.log(d);
+                //         return d.type
+                //     })
+                //     .text(function (d) {
+                //         // console.log("here.........");
+                //         console.log(d);
+                //         return show_id?d.name:'';
+                //         //return "here";
+                //     });
+
                 text.exit().remove();
 
-                
 
 
 
-                // var show_id = false;
-                //  // only show a label if the node is being tracked
-                // if ($.inArray(d['name'], tracked_nodes) > -1) {
-                //     show_id = true;
-                // }
-                //     // A copy of the text with a thick white stroke for legibility.
-                //     text.append("svg:text")
-                //         .attr("x", 8)
-                //         .attr("y", ".31em")
-                //         .attr("class", "shadow")
-                //         .attr("class", function (d) {
-                //             return d.type
-                //         })
-                //         .text(function (d) {
-                //             return show_id?d.name:'';
-                //         });
 
-                //     text.append("svg:text")
-                //         .attr("x", 8)
-                //         .attr("y", ".31em")
-                //         .attr("class", function (d) {
-                //             return d.type
-                //         })
-                //         .text(function (d) {
-                //              return show_id?d.name:'';
-                //         });
 
-                
+
+
 
                 force.start();
             }
@@ -701,7 +685,7 @@
                 setTimeout(function(){
                     drilling_control.in_progress = false
                     current_graph = $.extend(true, {}, current_complete_graph);
-                    
+
                     replace_graph(graph, $.extend(true, {}, current_graph));
 
                     current_focuse_node = null;
@@ -737,9 +721,43 @@
 
             });
 
+            $('#opt_find_btn').click(function(){
+                var name_to_find = $('#opt_find_name_text').val();
+
+                if(name_to_find){
+
+                    setTimeout(function(){
+                        graph.nodes.forEach(function(node){
+                            node.found = false;
+                            if(node.name == name_to_find) {
+                                node.found = true;
+                            }
+                        });
+
+                        update();
+                    }, 200);
+                    
+                }
+            });
+
+            $('#opt_find_clear_btn').click(function(){
+                setTimeout(function(){
+                    $('#opt_find_name_text').val('');
+
+                    graph.nodes.forEach(function(node){
+                        node.found = false;
+                    });
+
+                    update();
+                }, 200);
+
+                
+
+            });
+
             update();
         };
-        
+
         //these two functions need to be a total redraw... unless we find a way to rebind mouseover/mouseout events... (doable... just need to rewrite a lot...)
         $('#opt_tooltip').click(function(){
             user_options.tooltip = $(this).prop('checked');
@@ -751,7 +769,7 @@
             setTimeout(function(){
                 var graph = $.extend(true, {}, current_graph);
                 draw_graph(graph);
-            }, 200);            
+            }, 200);
         });
 
         $('#opt_connected').click(function(){
@@ -774,9 +792,9 @@
             }else{
                 current_graph = $.extend(true, {}, current_complete_graph);
             }
-            
+
             graph = $.extend(true, {}, current_graph);
-            draw_graph(graph);         
+            draw_graph(graph);
         });
     };
 
@@ -795,29 +813,6 @@
         return ret;
     };
 
-    /*
-var default_opts = {
-            where: "#canvas",
-            r: 10,
-            width: 1200,
-            height: 1200,
-            charge: -80,
-            gravity: 0.10,
-            linkDistance: 30,
-            selfLoopLinkDistance: 20,
-            nodeOpacity: .9,
-            linkOpacity: .85,
-            fadedOpacity: .1,
-            mousedOverNodeOpacity: .9,
-            mousedOverLinkOpacity: .9,
-            nodeStrokeWidth: 1.5,
-            nodeStrokeColor: "#333",
-            colorField: "color",
-            startingColor: "#ccc",
-            endingColor: "#BD0026"
-        }
-*/
-
 
     var createNav = function createNavBar(activeNetwork) {
 
@@ -835,7 +830,7 @@ var default_opts = {
             }else{
                 $li = $('<li class="dropdown"></li>');
             }
-            
+
 
             $a = $('<a href="#" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function () {
                 var tag = $(this).attr('tag');
