@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 import igraph
 import json
+import numpy as np
 
 from misc.utils import root_folder
 from network_analysis.utils import load_network_for
@@ -41,6 +42,8 @@ def rwr_scores(budgetYears):
 
     logger.info(g.summary())
 
+    adj = np.array(g.get_adjacency(igraph.GET_ADJACENCY_BOTH).data)
+
     links = []
     m = len(g.vs)
     for i in range(m):
@@ -57,7 +60,7 @@ def rwr_scores(budgetYears):
         v2 = int(v[1])
 
         key = '%s,%s' % (g.vs[v1]['name'], g.vs[v2]['name'])
-        if(float(score) > 0.001):
+        if(float(score) > 0.001 and adj[v1][v2] == 0):
             rwrs[key] = score
 
     filename = '%s/data/networks/%d-%d-rwr.json' % (root_folder(),
