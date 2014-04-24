@@ -398,7 +398,7 @@
 
             var path = svg.append("svg:g").selectAll("path"),
                 circle = svg.append("svg:g").selectAll("circle"),
-                text = svg.append("svg:g").selectAll("g");
+                text = svg.append("svg:g").selectAll("text");
 
 
             var update = function update() {
@@ -563,13 +563,13 @@
 
                 text = text.data(force.nodes());
 
-                var textEnter = text.enter().append("svg:g");
+                var textEnter = text.enter().append("svg:text");
 
                 text.attr("class", function (d) {
                         return d.type
                     });
 
-                // var show_id = true;
+                var show_id = true;
                 // //  // only show a label if the node is being tracked
                 // // if ($.inArray(d['name'], tracked_nodes) > -1) {
                 // //     show_id = true;
@@ -587,19 +587,19 @@
                 //         return show_id?d.name:'';
                 //     });
 
-                // text.append("svg:text")
-                //     .attr("x", 8)
-                //     .attr("y", ".31em")
-                //     .attr("class", function (d) {
-                //         //console.log(d);
-                //         return d.type
-                //     })
-                //     .text(function (d) {
-                //         // console.log("here.........");
-                //         console.log(d);
-                //         return show_id?d.name:'';
-                //         //return "here";
-                //     });
+                text
+                    .attr("x", 8)
+                    .attr("y", ".31em")
+                    .attr("class", function (d) {
+                        //console.log(d);
+                        return d.type
+                    })
+                    .text(function (d) {
+                        // console.log("here.........");
+                        //console.log(d);
+                        return show_id?d.name:'';
+                        //return "here";
+                    });
 
                 text.exit().remove();
 
