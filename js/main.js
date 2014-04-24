@@ -323,6 +323,21 @@
         return found;
     };
 
+    var find_link = function find_link(links, names) {
+        var found;
+
+        var source_name = names[0], target_name = names[1];
+
+        links.forEach(function(link){
+
+            if((link.source.name == source_name && link.target.name == target_name) || (link.source.name == target_name && link.target.name == source_name)){
+                found = link;
+            }
+        });
+
+        return found;
+    };
+
     //add predicted links to current_graph and update graph
     var add_predicted_links = function add_predicted_links(graph, current_graph, rwrs, confidence) {
         
@@ -338,9 +353,7 @@
 
         ss.reverse();
 
-
         var ti = parseInt(parseFloat(confidence)/100 * ss.length);
-
 
         var threshold = ss[ti];
 
@@ -350,7 +363,7 @@
 
                 var source = find_node(graph.nodes, names[0]), target = find_node(graph.nodes, names[1]);
 
-                if (source && target) {
+                if (source && target && !find_link(graph.links, names)) {
 
                     graph.links.push({
                         source: find_node(graph.nodes, names[0]),
