@@ -1,4 +1,14 @@
 (function () {
+
+    var getNetworkRoot = function getNetworkRoot(tag) {
+        var s = tag.split('-');
+
+        var sy = $.trim(s[0]);
+        var ey = $.trim(s[1]);
+        
+        return sy + '-' + ey;
+    };
+
     $('#force-gravity').slider({
           formater: function(value) {
             return 'Current value: '+parseFloat(value)/100;
@@ -17,12 +27,23 @@
           }
         });
 
+    
+    $('#prediction_top_n').slider({
+          formater: function(value) {
+            return 'Top '+ value + '% predictions';
+          }
+        });
+
     var user_options = {
         tracking: false,
         highlight_ctsa: true,
         drilling: true,
         tooltip: true,
-        connected: false
+        connected: false,
+        prediction: {
+            on: false,
+            val: 0.1
+        }
     };
    
     $('#opt_tracking').click(function(){
@@ -199,6 +220,8 @@
         });
 
         //console.log(c_focus_node);
+
+        //console.log(c_focus_node);
         if(!c_focus_node) {
             alert("The focused node does not exist in this snapshot... Reset and try another one...");
             console.log("The focused node does not exist in this snapshot... Reset and try another one...");
@@ -240,17 +263,10 @@
         
     };
 
+    var get_graph = function get_graph(graph, opts) {
 
-    var d3_draw = function d3_draw(activeNetwork) {
-
-        var z = d3.scale.category20c();
-
-        //var opts = $.extend({}, default_opts, opts);
-        var opts = network_opts[activeNetwork];
-
-        var draw_graph = function draw_graph(graph) {
-
-            var link_tracks = {}, colorTypes = {};
+        console.log(opts);
+        var link_tracks = {}, colorTypes = {};
             // Compute the distinct nodes from the links.
             graph.links.forEach(function (link) {
                 var t = 'basic';
@@ -279,12 +295,97 @@
                 }
             });
 
+        return {
+            graph: graph,
+            link_tracks: link_tracks,
+            colorTypes: colorTypes
+        };
+    };
+
+    var replace_graph = function replace_graph(graph, new_graph) {
+        graph.nodes.splice(0, graph.nodes.length);
+        graph.links.splice(0, graph.links.length);
+
+        [].push.apply(graph.nodes, new_graph.nodes);
+        [].push.apply(graph.links, new_graph.links);
+    };
+
+    var find_node = function find_node(nodes, name) {
+
+        var found;
+
+        nodes.forEach(function(node){
+            if(node.name == name) {
+                found = node;
+            }
+        })
+
+        return found;
+    };
+
+    //add predicted links to current_graph and update graph
+    var add_predicted_links = function add_predicted_links(graph, current_graph, rwrs, confidence) {
+        
+        var gg = $.extend(true, {}, current_graph);
+
+        var ss = [];
+
+        for (var key in rwrs) {
+            ss.push(rwrs[key]);
+        }
+
+        ss.sort();
+
+        ss.reverse();
+
+
+        var ti = parseInt(parseFloat(confidence)/100 * ss.length);
+
+
+        var threshold = ss[ti];
+
+        for (var key in rwrs) {
+            if(rwrs[key] >= threshold) {
+                var names = key.split(',');
+
+                var source = find_node(graph.nodes, names[0]), target = find_node(graph.nodes, names[1]);
+
+                if (source && target) {
+
+                    graph.links.push({
+                        source: find_node(graph.nodes, names[0]),
+                        target: find_node(graph.nodes, names[1]),
+                        type: "basic",
+                        weight: 1,
+                        predicted: true
+                    });
+                }
+            }
+        }
+
+    };
+
+    var d3_draw = function d3_draw(activeNetwork) {
+
+        var z = d3.scale.category20c();
+
+        //var opts = $.extend({}, default_opts, opts);
+        var opts = network_opts[getNetworkRoot(activeNetwork)];
+
+        var draw_graph = function draw_graph(graph) {
+
+            var rg = get_graph(graph, opts);
+
+            var graph = rg.graph, link_tracks = rg.link_tracks, colorTypes = rg.colorTypes;
+
             var isConnected = function isConnected(e, t) {
                 return link_tracks[e.index + "," + t.index] || link_tracks[t.index + "," + e.index] || e.index === t.index;
             };
 
+            graph.nodes = d3.values(graph.nodes);
+
             var force = d3.layout.force()
-                .nodes(d3.values(graph.nodes))
+                .nodes(graph.nodes)
                 .links(graph.links)
                 .linkStrength(function (d) {
                     return (d.type == "self-loop" ? 1 : 0.5);
@@ -295,221 +396,226 @@
                 })
                 .gravity(opts.gravity)
                 .charge(opts.charge)
-                .on("tick", tick)
-                .start();
-
-            $('#force-gravity').on('slide', function(e){
-                opts.gravity = parseFloat(e.value)/100;
-                $('#force-gravity-value').text(opts.gravity);
-                force.gravity(opts.gravity);
-                network_opts[activeNetwork] = opts;
-            });
-
-            $('#force-charge').on('slide', function(e){
-                opts.charge = parseFloat(e.value);
-                $('#force-charge-value').text(opts.charge);
-                force.charge(opts.charge);
-                network_opts[activeNetwork] = opts;
-            });
-
-            $('#force-link-distance').on('slide', function(e){
-                opts.linkDistance = parseFloat(e.value);
-                $('#force-link-distance-value').text(opts.linkDistance);
-                network_opts[activeNetwork] = opts;
-                //force.linkDistance(opts.linkDistance);
-            });
+                .on("tick", tick);
 
             d3.select('svg').remove();
             var svg = d3.select("#canvas").append("svg:svg")
                 .attr("width", opts.width)
                 .attr("height", opts.height);
 
-            var path = svg.append("svg:g").selectAll("path")
-                .data(force.links())
-                .enter().append("svg:path")
-                .attr("class", function (d) {
-                    return "link " + d.type;
-                })
-                .attr("style", function (d) {
-                    // edge width based on weight
-                    return 'stroke-width: ' + d.weight + 'px !important;'
-                })
-                .attr("marker-end", function (d) {
-                    return "url(#" + d.type + ")";
-                });
+            var path = svg.append("svg:g").selectAll("path"),
+                circle = svg.append("svg:g").selectAll("circle"),
+                text = svg.append("svg:g").selectAll("g");
 
 
-            var mouseover_func = function mouseover_func(node) {
+            var update = function update() {
+                path = path.data(force.links());
 
-                return circle.style("opacity", function (otherNode) {
-                    return isConnected(node, otherNode) ? opts.mousedOverNodeOpacity : opts.fadedOpacity
-                }), path.style("opacity", function (p) {
-                    return p.source === node || p.target === node ? opts.mousedOverLinkOpacity : opts.fadedOpacity;
-                });
-            };
+                var pathEnter = path.enter().append("svg:path");
 
-            var mouseout_func = function mouseout_func(node) {
-                return circle.style("fill", function (node) {
-                    return getColor(node);
-                }).attr("r", function (d) {
-                    return ($.inArray(d['name'], tracked_nodes) > -1) ? opts.r * 1.5:opts.r; //d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r;
-                }).style("stroke", opts.nodeStrokeColor).style("stroke-width", opts.nodeStrokeWidth).call(force.drag).style("opacity", opts.nodeOpacity), path.style("opacity", opts.linkOpacity);
-            }
 
-            var circle = svg.append("svg:g").selectAll("circle")
-                .data(force.nodes())
-                .enter().append("svg:circle")
-                .attr("r", function (d) {
-
-                    return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
-                    //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
-                })
-                .call(force.drag)
-                .attr("class", function (d) {
-                    var c = d.type || '';
-                    if (d.ctsa) c = c + ' ctsa';
-                    for (var key in d) {
-                        if (!isInExcludingList(key, ignoredNodeAttributes)) {
-                            c = c + ' ' + key + '-' + d[key];
+                path.attr("class", function (d) {
+                        if(d.predicted){
+                            console.log(d);
                         }
-                    }
+                        return "link " + d.type + (d.predicted?" predicted":"");
+                    })
+                    .attr("style", function (d) {
+                        // edge width based on weight
+                        return 'stroke-width: ' + d.weight + 'px !important;'
+                    })
+                    .attr("marker-end", function (d) {
+                        return "url(#" + d.type + ")";
+                    });
 
-                    return c;
-                }).style("fill", function (node) {
-                    return node.focused?tracked_node_color:getColor(node, true);
-                }).on("click", function(node){
-                    if(user_options.tracking){
-                        toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
-                        //console.log(tracked_nodes);
-                    }
+                path.exit().remove();
 
-                    if(user_options.drilling) {
+
+                var mouseover_func = function mouseover_func(node) {
+
+                    return circle.style("opacity", function (otherNode) {
+                        return isConnected(node, otherNode) ? opts.mousedOverNodeOpacity : opts.fadedOpacity
+                    }), path.style("opacity", function (p) {
+                        return p.source === node || p.target === node ? opts.mousedOverLinkOpacity : opts.fadedOpacity;
+                    });
+                };
+
+                var mouseout_func = function mouseout_func(node) {
+                    return circle.style("fill", function (node) {
+                        return getColor(node);
+                    }).attr("r", function (d) {
+                        return ($.inArray(d['name'], tracked_nodes) > -1) ? opts.r * 1.5:opts.r; //d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r;
+                    }).style("stroke", opts.nodeStrokeColor).style("stroke-width", opts.nodeStrokeWidth).call(force.drag).style("opacity", opts.nodeOpacity), path.style("opacity", opts.linkOpacity);
+                }
+
+                circle = circle.data(force.nodes());
+
+                var circleEnter = circle.enter().append("svg:circle")
+                    .call(force.drag);
+
+                circle.on("click", function(node){
+                        if(user_options.tracking){
+                            toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
+                            //console.log(tracked_nodes);
+                        }
+
+                        if(user_options.drilling) {
+                            
+
+                            setTimeout(function(){
+                                if (!drilling_control.in_progress) { 
+                                    drilling_control.in_progress = true;
+                                }
+                                current_focuse_node = $.extend(true, {}, node);
+                                
+
+                                replace_graph(graph, filter_graph(node, current_complete_graph));
+                                // graph.nodes.splice(0, graph.nodes.length);
+                                // graph.links.splice(0, graph.links.length);
+
+                                // [].push.apply(graph.nodes, new_graph.nodes);
+                                // [].push.apply(graph.links, new_graph.links);
+                                
+                                //console.log(graph);
+
+                                update();
+                                
+                                
+
+                                //}
+                            },drilling_control.click_hack); 
+                        }
+                    }).on("dblclick", function(node){
                         
 
-                        setTimeout(function(){
-                            if (!drilling_control.in_progress) { 
-                                drilling_control.in_progress = true;
-                            }
-                            current_focuse_node = $.extend(true, {}, node);
-                            //var reset = node.focused; //if the user click on the current focused node, it will just reset...
-                            
-                            // if(reset){
-                            //     current_graph = $.extend(true, {}, current_complete_graph);                                    
-                            // }else{
-                            current_graph = filter_graph(node, current_complete_graph);
-                            //}
-
-                            var graph = $.extend(true, {}, current_graph);
-                            draw_graph(graph);
-
-                            //}
-                        },drilling_control.click_hack); 
-                    }
-                }).on("dblclick", function(node){
+                    });
                     
+                    if(user_options.connected) {
+                        circle.on("mouseover", function (node) {
+                        return mouseover_func(node);
+                        }).on("mouseout", function (node) {
+                            return mouseout_func(node);
+                        });
+                    }
 
+                    if(user_options.tooltip) {
+                        circle.tooltip(function (d, i) {
+                            var r; //, svg;
+                            r = +d3.select(this).attr('r');
+                            //svg = d3.select(document.createElement("svg")).attr("height", 50);
+                            //g = svg.append("g");
+                            //g.append("rect").attr("width", r * 10).attr("height", 10);
+                            //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
+            //                   <div class="form-group">
+            //   <label class="col-lg-2 control-label">Email</label>
+            //   <div class="col-lg-10">
+            //     <p class="form-control-static">email@example.com</p>
+            //   </div>
+            // </div>
+                            var $content = $('<div></div>');
+                            $content.append(info_row('ID', d['name']));
+                            $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                                return letter.toUpperCase();
+                            })));
+                            $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
+                            $content.append(info_row('Degree', d['degree']));
+                            $content.append(info_row('Strength', d['strength']));
+                            $content.append(info_row('Betweenness', d['betweenness']));
+                            $content.append(info_row('Closeness', d['closeness']));
+                            $content.append(info_row('Eigen Centrality', d['evcent']));
+                            $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
+
+                            return {
+                                type: "popover",
+                                title: "Node Information",
+                                content: $content,
+                                detection: "shape",
+                                placement: "mouse",
+                                gravity: "right",
+                                position: [d.x, d.y],
+                                displacement: [r + 2, -155],
+                                mousemove: true,
+                                class: "node-info"
+                            };                   
+                        });
+                    }
+
+
+                circle.attr("r", function (d) {
+
+                        return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
+                        //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                    })
+                    .attr("class", function (d) {
+                        var c = d.type || '';
+                        if (d.ctsa) c = c + ' ctsa';
+                        for (var key in d) {
+                            if (!isInExcludingList(key, ignoredNodeAttributes)) {
+                                c = c + ' ' + key + '-' + d[key];
+                            }
+                        }
+                        //console.log(d);
+
+                        return c;
+                    }).style("fill", function (node) {
+                        return node.focused?tracked_node_color:getColor(node, true);
+                    })
+
+                    // bind options to highlight ctsa nodes...
+                $('#opt_highlight_ctsa').click(function(){
+                    user_options.highlight_ctsa = $(this).prop('checked');
+                    circle.style("fill", function (node) {
+                        return getColor(node, true);
+                    });
                 });
+
+                circle.exit().remove();
+
+                text = text.data(force.nodes());
+
+                var textEnter = text.enter().append("svg:g");
+
+                text.attr("class", function (d) {
+                        return d.type
+                    });
+
+                text.exit().remove();
+
                 
-                if(user_options.connected) {
-                    circle.on("mouseover", function (node) {
-                    return mouseover_func(node);
-                    }).on("mouseout", function (node) {
-                        return mouseout_func(node);
-                    });
-                }
 
-                if(user_options.tooltip) {
-                    circle.tooltip(function (d, i) {
-                        var r; //, svg;
-                        r = +d3.select(this).attr('r');
-                        //svg = d3.select(document.createElement("svg")).attr("height", 50);
-                        //g = svg.append("g");
-                        //g.append("rect").attr("width", r * 10).attr("height", 10);
-                        //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
-        //                   <div class="form-group">
-        //   <label class="col-lg-2 control-label">Email</label>
-        //   <div class="col-lg-10">
-        //     <p class="form-control-static">email@example.com</p>
-        //   </div>
-        // </div>
-                        var $content = $('<div></div>');
-                        $content.append(info_row('ID', d['name']));
-                        $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                            return letter.toUpperCase();
-                        })));
-                        $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
-                        $content.append(info_row('Degree', d['degree']));
-                        $content.append(info_row('Strength', d['strength']));
-                        $content.append(info_row('Betweenness', d['betweenness']));
-                        $content.append(info_row('Closeness', d['closeness']));
-                        $content.append(info_row('Eigen Centrality', d['evcent']));
-                        $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
 
-                        return {
-                            type: "popover",
-                            title: "Node Information",
-                            content: $content,
-                            detection: "shape",
-                            placement: "mouse",
-                            gravity: "right",
-                            position: [d.x, d.y],
-                            displacement: [r + 2, -155],
-                            mousemove: true,
-                            class: "node-info"
-                        };                   
-                    });
-                }
 
-            var text = svg.append("svg:g").selectAll("g")
-                .data(force.nodes())
-                .enter().append("svg:g")
-                .attr("class", function (d) {
-                    return d.type
-                });
+                // var show_id = false;
+                //  // only show a label if the node is being tracked
+                // if ($.inArray(d['name'], tracked_nodes) > -1) {
+                //     show_id = true;
+                // }
+                //     // A copy of the text with a thick white stroke for legibility.
+                //     text.append("svg:text")
+                //         .attr("x", 8)
+                //         .attr("y", ".31em")
+                //         .attr("class", "shadow")
+                //         .attr("class", function (d) {
+                //             return d.type
+                //         })
+                //         .text(function (d) {
+                //             return show_id?d.name:'';
+                //         });
 
-            // bind options to highlight ctsa nodes...
-            $('#opt_highlight_ctsa').click(function(){
-                user_options.highlight_ctsa = $(this).prop('checked');
-                circle.style("fill", function (node) {
-                    return getColor(node, true);
-                });
-            });
+                //     text.append("svg:text")
+                //         .attr("x", 8)
+                //         .attr("y", ".31em")
+                //         .attr("class", function (d) {
+                //             return d.type
+                //         })
+                //         .text(function (d) {
+                //              return show_id?d.name:'';
+                //         });
 
-            $('#opt_drilling_reset').click(function(){
-                setTimeout(function(){
-                    current_graph = $.extend(true, {}, current_complete_graph);
-                    var graph = $.extend(true, {}, current_graph);
-                    current_focuse_node = null;
-                    draw_graph(graph);
-                }, 200);
-            });
+                
 
-            // var show_id = false;
-            //  // only show a label if the node is being tracked
-            // if ($.inArray(d['name'], tracked_nodes) > -1) {
-            //     show_id = true;
-            // }
-            //     // A copy of the text with a thick white stroke for legibility.
-            //     text.append("svg:text")
-            //         .attr("x", 8)
-            //         .attr("y", ".31em")
-            //         .attr("class", "shadow")
-            //         .attr("class", function (d) {
-            //             return d.type
-            //         })
-            //         .text(function (d) {
-            //             return show_id?d.name:'';
-            //         });
-
-            //     text.append("svg:text")
-            //         .attr("x", 8)
-            //         .attr("y", ".31em")
-            //         .attr("class", function (d) {
-            //             return d.type
-            //         })
-            //         .text(function (d) {
-            //              return show_id?d.name:'';
-            //         });
+                force.start();
+            }
 
             function tick() {
 
@@ -532,8 +638,7 @@
                             b * dr * Math.sin(a) + "," + b * dr * Math.cos(a) + " " +
                             b * dr * Math.sin(a + da) + "," + b * dr * Math.cos(a + da) + " " + " T " + d.target.x + "," + d.target.y;
                     }
-                })
-                    .attr("x1", function (d) {
+                }).attr("x1", function (d) {
                         return d.source.x;
                     })
                     .attr("y1", function (d) {
@@ -557,8 +662,72 @@
                     return "translate(" + d.x + "," + d.y + ")";
                 });
             }
-        };
 
+            $('#force-gravity').on('slide', function(e){
+                opts.gravity = parseFloat(e.value)/100;
+                $('#force-gravity-value').text(opts.gravity);
+                force.gravity(opts.gravity).start();
+                network_opts[getNetworkRoot(activeNetwork)] = opts;
+            });
+
+            $('#force-charge').on('slide', function(e){
+                opts.charge = parseFloat(e.value);
+                $('#force-charge-value').text(opts.charge);
+                force.charge(opts.charge).start();
+                network_opts[getNetworkRoot(activeNetwork)] = opts;
+            });
+
+            $('#force-link-distance').on('slide', function(e){
+                opts.linkDistance = parseFloat(e.value);
+                $('#force-link-distance-value').text(opts.linkDistance);
+                network_opts[getNetworkRoot(activeNetwork)] = opts;
+                force.linkDistance(opts.linkDistance).start();
+            });
+
+            $('#opt_drilling_reset').click(function(){
+                setTimeout(function(){
+                    drilling_control.in_progress = false
+                    current_graph = $.extend(true, {}, current_complete_graph);
+                    
+                    replace_graph(graph, $.extend(true, {}, current_graph));
+
+                    current_focuse_node = null;
+                    update();
+                }, 200);
+            });
+
+            $('#opt_show_prediction').click(function(){
+                user_options.prediction.on = $(this).prop('checked');
+
+                if(user_options.prediction.on){
+                    d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
+
+                        add_predicted_links(graph, current_graph, rwrs, user_options.prediction.val);
+
+                        update();
+                    });
+                }
+            });
+
+            $('#prediction_top_n').on('slideStop', function(e){
+                user_options.prediction.val = parseFloat(e.value);
+
+                //console.log(user_options);
+                if(user_options.prediction.on){
+                    d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
+
+                        add_predicted_links(graph, current_graph, rwrs, user_options.prediction.val);
+
+                        update();
+                    });
+                }
+
+            });
+
+            update();
+        };
+        
+        //these two functions need to be a total redraw... unless we find a way to rebind mouseover/mouseout events... (doable... just need to rewrite a lot...)
         $('#opt_tooltip').click(function(){
             user_options.tooltip = $(this).prop('checked');
 
@@ -611,15 +780,6 @@
         }
 
         return ret;
-    };
-
-    var getNetworkRoot = function getNetworkRoot(tag) {
-        var s = tag.split('-');
-
-        var sy = $.trim(s[0]);
-        var ey = $.trim(s[1]);
-        
-        return sy + '-' + ey;
     };
 
     /*

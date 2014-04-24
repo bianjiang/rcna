@@ -107,9 +107,14 @@
                               <input type="checkbox" checked="checked" id="opt_highlight_ctsa" />
                               <span class="label label-success">Highlight CTSA?</span>
                             </li>
-                            <li class="list-group-item">                              
-                              <input type="checkbox" id="opt_show_prediction" />
-                              <span class="label label-warning">Show Predictions?</span>
+                            <li class="list-group-item">
+                              <div class="clearfix">                              
+                                <input type="checkbox" id="opt_show_prediction" />
+                                <span class="label label-warning">Show Predictions?</span><br/>
+                              </div>
+                              <div style="margin-top:25px;">
+                              <span><input type="text" id="prediction_top_n" value="" data-slider-min="10" data-slider-max="50" data-slider-step="5" data-slider-value="20" data-slider-tooltip="show" /></span>
+                              </div>
                             </li>
                             <li class="list-group-item">                              
                               <input type="checkbox" checked="checked" id="opt_tooltip" />

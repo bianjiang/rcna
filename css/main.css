@@ -225,6 +225,11 @@ path.link.dashed {
   stroke-dasharray: 0,2 1;
 }
 
+path.link.predicted {
+  stroke: #A00000 !important;
+  stroke-dasharray: 0,2 1 !important;
+}
+
 text {
   font: 10px sans-serif;
   pointer-events: none;
