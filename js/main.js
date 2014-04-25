@@ -523,7 +523,7 @@
                             var factor = 1.0;
 
                             if(isCentralityLeader(d)) {
-                                factor = parseFloat(11 - d.centrality_leader) / 5 * 2;
+                                factor = parseFloat(11 - d.centrality_leader) / 5;
                             }
                             return opts.r * factor;
                         }else{
@@ -565,7 +565,7 @@
                             var factor = 1.0;
 
                             if(isCentralityLeader(d)) {
-                                factor = parseFloat(11 - d.centrality_leader) / 5 * 2;
+                                factor = parseFloat(11 - d.centrality_leader) / 5;
                             }
                             return opts.r * factor;
                             //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
