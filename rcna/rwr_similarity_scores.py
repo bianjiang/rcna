@@ -60,7 +60,7 @@ def rwr_scores(budgetYears):
         v2 = int(v[1])
 
         key = '%s,%s' % (g.vs[v1]['name'], g.vs[v2]['name'])
-        if(float(score) > 0.001 and adj[v1][v2] == 0):
+        if(float(score) > 0.001):
             rwrs[key] = score
 
     filename = '%s/data/networks/%d-%d-rwr.json' % (root_folder(),
@@ -72,9 +72,9 @@ def rwr_scores(budgetYears):
 
 if __name__ == '__main__':
 
-    for budgetYear in range(2006, 2013):
-        rwr_scores(range(budgetYear, budgetYear + 1))
+    # for budgetYear in range(2006, 2013):
+    #     rwr_scores(range(budgetYear, budgetYear + 1))
 
-    rwr_scores(range(2006, 2010))
-    rwr_scores(range(2010, 2013))
+    # rwr_scores(range(2006, 2010))
+    # rwr_scores(range(2010, 2013))
     rwr_scores(range(2006, 2013))
