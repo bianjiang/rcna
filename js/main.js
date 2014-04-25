@@ -34,33 +34,22 @@
           }
         });
 
-    var user_options = {
-        tracking: false,
+    //$('#opt_drilling_prediction').tooltip();
+
+    var user_options = {        
         highlight_ctsa: true,
+        centrality_leader: false,
+        tracking: false,
         drilling: true,
         tooltip: true,
         connected: false,
         prediction: {
             on: false,
-            val: 0.1
+            val: 0.01
         }
     };
 
-    $('#opt_tracking').click(function(){
-        user_options.tracking = $(this).prop('checked');
-        if(user_options.tracking) {
-            $('#opt_drilling').attr("checked", false);
-            user_options.drilling = false;
-        }
-    });
-
-    $('#opt_drilling').click(function(){
-        user_options.drilling = $(this).prop('checked');
-        if (user_options.drilling){
-            $('#opt_tracking').attr("checked", false);
-            user_options.tracking = false;
-        }
-    });
+    
 
     var isInExcludingList = function isInExcludingList(element, list) {
         return ($.inArray(element, list) > -1);
@@ -83,6 +72,10 @@
     var tracked_nodes = [];
     var tracked_node_color = "#FF0000";
 
+    var isCentralityLeader = function isCentralityLeader(node){
+        return (node.centrality_leader > 0 && node.centrality_leader < 11);
+    }
+
     var getColor = function getColor(node, check_tracked_nodes) {
         //console.log(node.role);
         //console.log(node[opts.colorField]);
@@ -99,6 +92,10 @@
                 c = tracked_node_color;
                 return c;
             }
+        }
+
+        if(isCentralityLeader(node) && user_options.centrality_leader){
+            c = '#ADFF2F';
         }
         //console.log(colors(c));
         return c;
@@ -171,7 +168,6 @@
     };
 
     var current_complete_graph;
-    var current_graph;
     var current_focuse_node;
 
     var drilling_control = {
@@ -319,9 +315,9 @@
     };
 
     //add predicted links to current_graph and update graph
-    var add_predicted_links = function add_predicted_links(graph, current_graph, rwrs, confidence) {
+    var add_predicted_links = function add_predicted_links(graph, current_complete_graph, rwrs, confidence) {
 
-        var gg = $.extend(true, {}, current_graph);
+        var gg = $.extend(true, {}, current_complete_graph);
 
         var ss = [];
 
@@ -412,7 +408,7 @@
                     })
                     .attr("style", function (d) {
                         // edge width based on weight
-                        return 'stroke-width: ' + d.weight + 'px !important;'
+                        return 'stroke-width: ' + (d.predicted?5:d.weight) + 'px !important;'
                     })
                     .attr("marker-end", function (d) {
                         return "url(#" + d.type + ")";
@@ -458,21 +454,9 @@
                                 }
                                 current_focuse_node = $.extend(true, {}, node);
 
-
                                 replace_graph(graph, filter_graph(node, current_complete_graph));
-                                // graph.nodes.splice(0, graph.nodes.length);
-                                // graph.links.splice(0, graph.links.length);
-
-                                // [].push.apply(graph.nodes, new_graph.nodes);
-                                // [].push.apply(graph.links, new_graph.links);
-
-                                //console.log(graph);
 
                                 update();
-
-
-
-                                //}
                             },drilling_control.click_hack);
                         }
                     }).on("dblclick", function(node){
@@ -490,6 +474,7 @@
 
                     if(user_options.tooltip) {
                         circle.tooltip(function (d, i) {
+
                             var r; //, svg;
                             r = +d3.select(this).attr('r');
                             //svg = d3.select(document.createElement("svg")).attr("height", 50);
@@ -502,6 +487,7 @@
             //     <p class="form-control-static">email@example.com</p>
             //   </div>
             // </div>
+                            
                             var $content = $('<div></div>');
                             $content.append(info_row('ID', d['name']));
                             $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
@@ -533,7 +519,16 @@
 
                 circle.attr("r", function (d) {
 
-                        return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
+                        if(user_options.centrality_leader){
+                            var factor = 1.0;
+
+                            if(isCentralityLeader(d)) {
+                                factor = parseFloat(11 - d.centrality_leader) / 5 * 2;
+                            }
+                            return opts.r * factor;
+                        }else{
+                            return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
+                        }
                         //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
                     })
                     .attr("class", function (d) {
@@ -557,6 +552,34 @@
                     circle.style("fill", function (node) {
                         return getColor(node, true);
                     });
+                });
+
+                $('#opt_centrality_leader').click(function(){
+                    user_options.centrality_leader = $(this).prop('checked');
+                    circle.style("fill", function (node) {
+                        return getColor(node, true);
+                    });
+                    if(user_options.centrality_leader){
+
+                        circle.attr("r", function (d) {
+                            var factor = 1.0;
+
+                            if(isCentralityLeader(d)) {
+                                factor = parseFloat(11 - d.centrality_leader) / 5 * 2;
+                            }
+                            return opts.r * factor;
+                            //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                        });
+
+                    }else{
+                        //going back to original size...
+                        circle.attr("r", function (d) {
+
+                            return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
+                            //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                        });
+                    }
+                    
                 });
 
                 circle.exit().remove();
@@ -602,13 +625,6 @@
                     });
 
                 text.exit().remove();
-
-
-
-
-
-
-
 
 
                 force.start();
@@ -681,25 +697,13 @@
                 force.linkDistance(opts.linkDistance).start();
             });
 
-            $('#opt_drilling_reset').click(function(){
-                setTimeout(function(){
-                    drilling_control.in_progress = false
-                    current_graph = $.extend(true, {}, current_complete_graph);
-
-                    replace_graph(graph, $.extend(true, {}, current_graph));
-
-                    current_focuse_node = null;
-                    update();
-                }, 200);
-            });
-
             $('#opt_show_prediction').click(function(){
                 user_options.prediction.on = $(this).prop('checked');
 
                 if(user_options.prediction.on){
                     d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
 
-                        add_predicted_links(graph, current_graph, rwrs, user_options.prediction.val);
+                        add_predicted_links(graph, current_complete_graph, rwrs, user_options.prediction.val);
 
                         update();
                     });
@@ -713,7 +717,7 @@
                 if(user_options.prediction.on){
                     d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
 
-                        add_predicted_links(graph, current_graph, rwrs, user_options.prediction.val);
+                        add_predicted_links(graph, current_complete_graph, rwrs, user_options.prediction.val);
 
                         update();
                     });
@@ -755,6 +759,58 @@
 
             });
 
+            var reset_tracking = function reset_tracking(){
+            
+                setTimeout(function(){
+                    draw_graph($.extend(true, {}, current_complete_graph));
+                    tracked_nodes.splice(0, tracked_nodes.length);
+                    render_tracked_nodes_sidebar();
+                }, 200);
+            };
+
+            $('#opt_tracking').click(function(){
+                user_options.tracking = $(this).prop('checked');
+
+                //switching to tracking mode and drilling was on... reset 
+                if(user_options.tracking && (user_options.drilling || drilling_control.in_progress)) {
+                    $('#opt_drilling').attr("checked", false);
+                    user_options.drilling = false;
+                    drilling_control.in_progress = false;
+                }
+                
+                reset_tracking();
+
+            });
+
+            $('#opt_drilling').click(function(){
+                user_options.drilling = $(this).prop('checked');
+
+                //switching to drilling mode and tracking was on... reset tracking...
+                if (user_options.drilling && user_options.tracking){
+
+                    $('#opt_tracking').attr("checked", false);
+                    user_options.tracking = false;
+                    reset_tracking();
+                    
+                }
+
+            });
+
+            $('#opt_drilling_reset').click(function(){
+                setTimeout(function(){
+                    drilling_control.in_progress = false;
+
+                    replace_graph(graph, $.extend(true, {}, current_complete_graph));
+
+                    current_focuse_node = null;
+                    update();
+                }, 200);
+            });
+
+            if(current_focuse_node && drilling_control.in_progress) {
+                current_focuse_node = $.extend(true, {}, find_node(current_complete_graph.nodes, current_focuse_node.name));
+                replace_graph(graph, filter_graph(current_focuse_node, current_complete_graph));
+            }
             update();
         };
 
@@ -767,8 +823,8 @@
                 user_options.connected = false;
             }
             setTimeout(function(){
-                var graph = $.extend(true, {}, current_graph);
-                draw_graph(graph);
+                
+                draw_graph($.extend(true, {}, current_complete_graph));
             }, 200);
         });
 
@@ -779,22 +835,16 @@
                 user_options.tooltip = false;
             }
             setTimeout(function(){
-                var graph = $.extend(true, {}, current_graph);
-                draw_graph(graph);
+                draw_graph($.extend(true, {}, current_complete_graph));
             }, 200);
         });
+
+
 
         d3.json('data/' + activeNetwork + ".json", function (error, graph) {
             current_complete_graph = $.extend(true, {}, graph);
 
-            if(current_focuse_node && drilling_control.in_progress) {
-                current_graph = filter_graph(current_focuse_node, current_complete_graph);
-            }else{
-                current_graph = $.extend(true, {}, current_complete_graph);
-            }
-
-            graph = $.extend(true, {}, current_graph);
-            draw_graph(graph);
+            draw_graph($.extend(true, {}, current_complete_graph));
         });
     };
 

@@ -90,11 +90,11 @@
                           </div>
                           <div class="row">
                               <label>Gravity:</label>
-                              <span class="slider-wrap"><input type="text" id="force-gravity" value="" data-slider-min="10" data-slider-max="50" data-slider-step="5" data-slider-value="25" data-slider-tooltip="hide" /><span id="force-gravity-value" class="slider-text">0.25</span></span>                              
+                              <span class="slider-wrap"><input type="text" id="force-gravity" value="" data-slider-min="1" data-slider-max="50" data-slider-step="1" data-slider-value="25" data-slider-tooltip="hide" /><span id="force-gravity-value" class="slider-text">0.25</span></span>                         
                           </div>
                           <div class="row">
                               <label>Link Distance:</label>
-                              <span class="slider-wrap"><input type="text" id="force-link-distance" value="" data-slider-min="5" data-slider-max="40" data-slider-step="5" data-slider-value="20" data-slider-tooltip="hide" /><span id="force-link-distance-value" class="slider-text">20</span></span>                              
+                              <span class="slider-wrap"><input type="text" id="force-link-distance" value="" data-slider-min="5" data-slider-max="300" data-slider-step="5" data-slider-value="20" data-slider-tooltip="hide" /><span id="force-link-distance-value" class="slider-text">20</span></span>                              
                           </div>
                         </div>
                     </div>
@@ -107,13 +107,17 @@
                               <input type="checkbox" checked="checked" id="opt_highlight_ctsa" />
                               <span class="label label-success">Highlight CTSA?</span>
                             </li>
+                            <li class="list-group-item">                              
+                              <input type="checkbox" id="opt_centrality_leader" />
+                              <span class="label label-success">Centrality leaders?</span>
+                            </li>
                             <li class="list-group-item">
                               <div class="clearfix">                              
                                 <input type="checkbox" id="opt_show_prediction" />
-                                <span class="label label-warning">Show Predictions?</span><br/>
+                                <span class="label label-warning">Show overall network predictions?</span><br/>
                               </div>
-                              <div style="margin-top:25px;">
-                              <span><input type="text" id="prediction_top_n" value="" data-slider-min="10" data-slider-max="50" data-slider-step="5" data-slider-value="20" data-slider-tooltip="show" /></span>
+                              <div class="clearfix" style="margin-top:25px; margin-left: 25px;">
+                              <span><input type="text" id="prediction_top_n" value="" data-slider-min="1" data-slider-max="5" data-slider-step="1" data-slider-value="1" data-slider-tooltip="show" /></span>
                               </div>
                             </li>
                             <li class="list-group-item">                              
@@ -131,7 +135,8 @@
                             <li class="list-group-item">                              
                               <input type="checkbox" checked="checked" id="opt_drilling" />
                               <span class="label label-default">Drill-down On?</span>
-                              &nbsp;<a id="opt_drilling_reset" class="btn-link">Reset</a>
+                              <!-- <input type="checkbox" checked="checked" id="opt_drilling_prediction" data-toggle="tooltip" data-placement="top" title="Toggle to show individual recommendations..." /> -->
+                              &nbsp;<a id="opt_drilling_reset" class="btn-link">Reset</a>                
                             </li>
                             <li class="list-group-item">                              
                               <div class="input-group">

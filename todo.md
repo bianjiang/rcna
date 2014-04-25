@@ -5,7 +5,7 @@
 * * Show changes of its neighbors: 1) green as added, 2) red as removed;
 * * Show connections between its neighbors
 * [DONE] Show network metrics when hover over a node
-* The ability to zoom into the node of interest;
+* [DONE] The ability to zoom into the node of interest;
 * [DONE] Give the user a timeline slider, so they can track the node from 2006 to 2013
 * [DONE] Show global network metrics for each graph on the side
 * Color code the nodes (make it customizable)

@@ -228,6 +228,7 @@ path.link.dashed {
 path.link.predicted {
   stroke: #A00000 !important;
   stroke-dasharray: 0,2 1 !important;
+  stroke-width: 3px !important;
 }
 
 text {
