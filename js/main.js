@@ -387,6 +387,7 @@
                 .charge(opts.charge)
                 .on("tick", tick);
 
+            d3.select('svg').selectAll("*").remove();
             d3.select('svg').remove();
             var svg = d3.select("#canvas").append("svg:svg")
                 .attr("width", opts.width)
@@ -395,7 +396,6 @@
             var path = svg.append("svg:g").selectAll("path"),
                 circle = svg.append("svg:g").selectAll("circle"),
                 text = svg.append("svg:g").selectAll("text");
-
 
             var update = function update() {
                 path = path.data(force.links());
@@ -440,151 +440,113 @@
                     .call(force.drag);
 
                 circle.on("click", function(node){
-                        if(user_options.tracking){
-                            toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
-                            //console.log(tracked_nodes);
-                        }
+                    if(user_options.tracking){
+                        toggle_tracked_node(node, d3.select(this), getColor(node), opts.r);
+                        //console.log(tracked_nodes);
+                    }
 
-                        if(user_options.drilling) {
-
-
-                            setTimeout(function(){
-                                if (!drilling_control.in_progress) {
-                                    drilling_control.in_progress = true;
-                                }
-                                current_focuse_node = $.extend(true, {}, node);
-
-                                replace_graph(graph, filter_graph(node, current_complete_graph));
-
-                                update();
-                            },drilling_control.click_hack);
-                        }
-                    }).on("dblclick", function(node){
+                    if(user_options.drilling) {
 
 
+                        setTimeout(function(){
+                            if (!drilling_control.in_progress) {
+                                drilling_control.in_progress = true;
+                            }
+                            current_focuse_node = $.extend(true, {}, node);
+
+                            replace_graph(graph, filter_graph(node, current_complete_graph));
+
+                            update();
+                        },drilling_control.click_hack);
+                    }
+                }).on("dblclick", function(node){
+
+
+                });
+
+                if(user_options.connected) {
+                    circle.on("mouseover", function (node) {
+                    return mouseover_func(node);
+                    }).on("mouseout", function (node) {
+                        return mouseout_func(node);
                     });
+                }
 
-                    if(user_options.connected) {
-                        circle.on("mouseover", function (node) {
-                        return mouseover_func(node);
-                        }).on("mouseout", function (node) {
-                            return mouseout_func(node);
-                        });
-                    }
+                if(user_options.tooltip) {
+                    circle.tooltip(function (d, i) {
 
-                    if(user_options.tooltip) {
-                        circle.tooltip(function (d, i) {
+                        var r; //, svg;
+                        r = +d3.select(this).attr('r');
+                        //svg = d3.select(document.createElement("svg")).attr("height", 50);
+                        //g = svg.append("g");
+                        //g.append("rect").attr("width", r * 10).attr("height", 10);
+                        //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
+        //                   <div class="form-group">
+        //   <label class="col-lg-2 control-label">Email</label>
+        //   <div class="col-lg-10">
+        //     <p class="form-control-static">email@example.com</p>
+        //   </div>
+        // </div>
+                        
+                        var $content = $('<div></div>');
+                        $content.append(info_row('ID', d['name']));
+                        $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                            return letter.toUpperCase();
+                        })));
+                        $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
+                        $content.append(info_row('Degree', d['degree']));
+                        $content.append(info_row('Strength', d['strength']));
+                        $content.append(info_row('Betweenness', d['betweenness']));
+                        $content.append(info_row('Closeness', d['closeness']));
+                        $content.append(info_row('Eigen Centrality', d['evcent']));
+                        $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
 
-                            var r; //, svg;
-                            r = +d3.select(this).attr('r');
-                            //svg = d3.select(document.createElement("svg")).attr("height", 50);
-                            //g = svg.append("g");
-                            //g.append("rect").attr("width", r * 10).attr("height", 10);
-                            //g.append("text").text("10 times the radius of the cirlce").attr("dy", "25");
-            //                   <div class="form-group">
-            //   <label class="col-lg-2 control-label">Email</label>
-            //   <div class="col-lg-10">
-            //     <p class="form-control-static">email@example.com</p>
-            //   </div>
-            // </div>
-                            
-                            var $content = $('<div></div>');
-                            $content.append(info_row('ID', d['name']));
-                            $content.append(info_row('Department', d['department'].toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                                return letter.toUpperCase();
-                            })));
-                            $content.append(info_row('CTSA-supported?', (d['ctsa'] == 1?'Yes':'No')));
-                            $content.append(info_row('Degree', d['degree']));
-                            $content.append(info_row('Strength', d['strength']));
-                            $content.append(info_row('Betweenness', d['betweenness']));
-                            $content.append(info_row('Closeness', d['closeness']));
-                            $content.append(info_row('Eigen Centrality', d['evcent']));
-                            $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
-
-                            return {
-                                type: "popover",
-                                title: "Node Information",
-                                content: $content,
-                                detection: "shape",
-                                placement: "mouse",
-                                gravity: "right",
-                                position: [d.x, d.y],
-                                displacement: [r + 2, -155],
-                                mousemove: true,
-                                class: "node-info"
-                            };
-                        });
-                    }
+                        return {
+                            type: "popover",
+                            title: "Node Information",
+                            content: $content,
+                            detection: "shape",
+                            placement: "mouse",
+                            gravity: "right",
+                            position: [d.x, d.y],
+                            displacement: [r + 2, -155],
+                            mousemove: true,
+                            class: "node-info"
+                        };
+                    });
+                }
 
 
                 circle.attr("r", function (d) {
 
-                        if(user_options.centrality_leader){
-                            var factor = 1.0;
-
-                            if(isCentralityLeader(d)) {
-                                factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
-
-                            }
-
-                            return opts.r * factor;
-                        }else{
-
-                            return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
-                        }
-                        //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
-                    })
-                    .attr("class", function (d) {
-                        var c = d.type || '';
-                        if (d.ctsa) c = c + ' ctsa';
-                        for (var key in d) {
-                            if (!isInExcludingList(key, ignoredNodeAttributes)) {
-                                c = c + ' ' + key + '-' + d[key];
-                            }
-                        }
-                        //console.log(d);
-
-                        return c;
-                    }).style("fill", function (node) {
-                        return (node.focused || node.found)?tracked_node_color:getColor(node, true);
-                    })
-
-                    // bind options to highlight ctsa nodes...
-                $('#opt_highlight_ctsa').click(function(){
-                    user_options.highlight_ctsa = $(this).prop('checked');
-                    circle.style("fill", function (node) {
-                        return getColor(node, true);
-                    });
-                });
-
-                $('#opt_centrality_leader').click(function(){
-                    user_options.centrality_leader = $(this).prop('checked');
-                    circle.style("fill", function (node) {
-                        return getColor(node, true);
-                    });
                     if(user_options.centrality_leader){
+                        var factor = 1.0;
 
-                        circle.attr("r", function (d) {
-                            var factor = 1.0;
+                        if(isCentralityLeader(d)) {
+                            factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
 
-                            if(isCentralityLeader(d)) {
-                                factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
+                        }
 
-                                //console.log(parseFloat(11 - d.centrality_leader));
-                            }
-                            return opts.r * factor;
-                            //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
-                        });
-
+                        return opts.r * factor;
                     }else{
-                        //going back to original size...
-                        circle.attr("r", function (d) {
 
-                            return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
-                            //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
-                        });
+                        return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
                     }
-                    
+                    //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                })
+                .attr("class", function (d) {
+                    var c = d.type || '';
+                    if (d.ctsa) c = c + ' ctsa';
+                    for (var key in d) {
+                        if (!isInExcludingList(key, ignoredNodeAttributes)) {
+                            c = c + ' ' + key + '-' + d[key];
+                        }
+                    }
+                    //console.log(d);
+
+                    return c;
+                }).style("fill", function (node) {
+                    return (node.focused || node.found)?tracked_node_color:getColor(node, true);
                 });
 
                 circle.exit().remove();
@@ -680,6 +642,47 @@
                     return "translate(" + d.x + "," + d.y + ")";
                 });
             }
+
+            // bind options to highlight ctsa nodes...
+            $('#opt_highlight_ctsa').click(function(){
+                user_options.highlight_ctsa = $(this).prop('checked');
+                //console.log(circle);
+                circle.style("fill", function (node) {
+                    
+                    return getColor(node, true);
+                });
+            });
+
+            $('#opt_centrality_leader').click(function(){
+                user_options.centrality_leader = $(this).prop('checked');
+                circle.style("fill", function (node) {
+                    return getColor(node, true);
+                });
+                if(user_options.centrality_leader){
+
+                    circle.attr("r", function (d) {
+                        var factor = 1.0;
+
+                        
+                        if(isCentralityLeader(d)) {
+                            factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
+                            //console.log(d);
+                            //console.log(parseFloat(11 - d.centrality_leader));
+                        }
+                        return opts.r * factor;
+                        //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                    });
+
+                }else{
+                    //going back to original size...
+                    circle.attr("r", function (d) {
+
+                        return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
+                        //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
+                    });
+                }
+                
+            });
 
             $('#force-gravity').on('slide', function(e){
                 opts.gravity = parseFloat(e.value)/100;
@@ -899,10 +902,10 @@
             }
 
 
-            $a = $('<a href="#" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function () {
+            $a = $('<a href="/?#' + current + '" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function () {
                 var tag = $(this).attr('tag');
                 $('#canvas > svg').hide('slow', function () {
-                    $('#canvas > svg').remove();
+                    //$('#canvas > svg').remove();
                     d3_draw(tag);
                     createNav(tag);
                 });
@@ -919,10 +922,10 @@
 
             $.each(ditems, function (menu) {
                 $action_li = $('<li></li>');
-                $action_a = $('<a href="#" tag="' + current + '-' + menu + '">' + ditems[menu] + '</a>').click(function () {
+                $action_a = $('<a href="/?#' + current + '-' + menu + '" tag="' + current + '-' + menu + '">' + ditems[menu] + '</a>').click(function () {
                     var tag = $(this).attr('tag');
                     $('#canvas > svg').hide('slow', function () {
-                        $('#canvas > svg').remove();
+                        //$('#canvas > svg').remove();
                         d3_draw(tag);
                         createNav(tag);
                     });
@@ -967,6 +970,12 @@
     $(document).ready(function () {
 
         activeNetwork = '2006-2012';
+        hash = location.hash.substr(1);
+
+        if (hash.length > 0) {
+            activeNetwork = hash;
+        }
+        
 
         createNav(activeNetwork);
 

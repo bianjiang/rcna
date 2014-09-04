@@ -217,7 +217,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">143</data>
       <data key="v_department">college of public health</data>
-      <data key="v_centrality_leader">49</data>
+      <data key="v_centrality_leader">2</data>
       <data key="v_id">n22</data>
     </node>
     <node id="n23">
@@ -379,7 +379,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">32</data>
       <data key="v_department">college of nursing  -  dean&apos;s office</data>
-      <data key="v_centrality_leader">39</data>
+      <data key="v_centrality_leader">12</data>
       <data key="v_id">n40</data>
     </node>
     <node id="n41">
@@ -406,7 +406,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">311</data>
       <data key="v_department">psychiatry</data>
-      <data key="v_centrality_leader">37</data>
+      <data key="v_centrality_leader">13</data>
       <data key="v_id">n43</data>
     </node>
     <node id="n44">
@@ -415,7 +415,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">226</data>
       <data key="v_department">obstetrics and gynecology</data>
-      <data key="v_centrality_leader">38</data>
+      <data key="v_centrality_leader">15</data>
       <data key="v_id">n44</data>
     </node>
     <node id="n45">
@@ -424,7 +424,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">94</data>
       <data key="v_department">ophthalmology</data>
-      <data key="v_centrality_leader">36</data>
+      <data key="v_centrality_leader">14</data>
       <data key="v_id">n45</data>
     </node>
     <node id="n46">
@@ -433,7 +433,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">121</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">48</data>
+      <data key="v_centrality_leader">4</data>
       <data key="v_id">n46</data>
     </node>
     <node id="n47">
@@ -451,7 +451,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">189</data>
       <data key="v_department">audiology and speech pathology</data>
-      <data key="v_centrality_leader">47</data>
+      <data key="v_centrality_leader">3</data>
       <data key="v_id">n48</data>
     </node>
     <node id="n49">
@@ -460,7 +460,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">172</data>
       <data key="v_department">surgery</data>
-      <data key="v_centrality_leader">43</data>
+      <data key="v_centrality_leader">7</data>
       <data key="v_id">n49</data>
     </node>
     <node id="n50">
@@ -514,7 +514,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">218</data>
       <data key="v_department">college of public health</data>
-      <data key="v_centrality_leader">33</data>
+      <data key="v_centrality_leader">18</data>
       <data key="v_id">n55</data>
     </node>
     <node id="n56">
@@ -604,7 +604,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">174</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">50</data>
+      <data key="v_centrality_leader">1</data>
       <data key="v_id">n65</data>
     </node>
     <node id="n66">
@@ -748,7 +748,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">240</data>
       <data key="v_department">biochemistry &amp;amp; molecular biology</data>
-      <data key="v_centrality_leader">44</data>
+      <data key="v_centrality_leader">8</data>
       <data key="v_id">n81</data>
     </node>
     <node id="n82">
@@ -1009,7 +1009,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">117</data>
       <data key="v_department">neurobiology &amp;amp; developmental science</data>
-      <data key="v_centrality_leader">45</data>
+      <data key="v_centrality_leader">5</data>
       <data key="v_id">n110</data>
     </node>
     <node id="n111">
@@ -1648,7 +1648,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">140</data>
       <data key="v_department">obstetrics and gynecology</data>
-      <data key="v_centrality_leader">38</data>
+      <data key="v_centrality_leader">13</data>
       <data key="v_id">n181</data>
     </node>
     <node id="n182">
@@ -1711,7 +1711,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">294</data>
       <data key="v_department">psychiatry</data>
-      <data key="v_centrality_leader">37</data>
+      <data key="v_centrality_leader">14</data>
       <data key="v_id">n188</data>
     </node>
     <node id="n189">
@@ -1801,7 +1801,7 @@
       <data key="v_role">Sub-Investigator</data>
       <data key="v_index_">327</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">46</data>
+      <data key="v_centrality_leader">6</data>
       <data key="v_id">n198</data>
     </node>
     <node id="n199">
@@ -1918,7 +1918,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">177</data>
       <data key="v_department">audiology and speech pathology</data>
-      <data key="v_centrality_leader">40</data>
+      <data key="v_centrality_leader">11</data>
       <data key="v_id">n211</data>
     </node>
     <node id="n212">
@@ -1990,7 +1990,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">194</data>
       <data key="v_department">surgery</data>
-      <data key="v_centrality_leader">32</data>
+      <data key="v_centrality_leader">19</data>
       <data key="v_id">n219</data>
     </node>
     <node id="n220">
@@ -2530,7 +2530,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">185</data>
       <data key="v_department">psychiatry</data>
-      <data key="v_centrality_leader">41</data>
+      <data key="v_centrality_leader">9</data>
       <data key="v_id">n279</data>
     </node>
     <node id="n280">
@@ -2539,7 +2539,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">137</data>
       <data key="v_department">physiology &amp;amp; biophysics</data>
-      <data key="v_centrality_leader">41</data>
+      <data key="v_centrality_leader">10</data>
       <data key="v_id">n280</data>
     </node>
     <node id="n281">
@@ -2548,7 +2548,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">167</data>
       <data key="v_department">college of nursing  -  dean&apos;s office</data>
-      <data key="v_centrality_leader">42</data>
+      <data key="v_centrality_leader">10</data>
       <data key="v_id">n281</data>
     </node>
     <node id="n282">
@@ -2683,7 +2683,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">54</data>
       <data key="v_department">partners inclusive communities</data>
-      <data key="v_centrality_leader">34</data>
+      <data key="v_centrality_leader">17</data>
       <data key="v_id">n296</data>
     </node>
     <node id="n297">
@@ -2998,7 +2998,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">209</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">35</data>
+      <data key="v_centrality_leader">16</data>
       <data key="v_id">n331</data>
     </node>
     <node id="n332">
