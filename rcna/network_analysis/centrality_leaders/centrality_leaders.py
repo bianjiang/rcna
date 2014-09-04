@@ -50,10 +50,10 @@ def centrality_leaders(g, k = None):
 	closeness_topK = rg.sorted_keys(closenesses)[0:k]
 	evcent_topK = rg.sorted_keys(evcents)[0:k]
 
-	# logger.info('degrees_top10: %s'%degrees_topK[:10])
-	# logger.info('betweennesses_top10: %s'%betweennesses_topK[:10])
-	# logger.info('closeness_top10: %s'%closeness_topK[:10])
-	# logger.info('evcent_top10: %s'%evcent_topK[:10])
+	logger.info('degrees_top10: %s'%degrees_topK[:10])
+	logger.info('betweennesses_top10: %s'%betweennesses_topK[:10])
+	logger.info('closeness_top10: %s'%closeness_topK[:10])
+	logger.info('evcent_top10: %s'%evcent_topK[:10])
 
 	tops = list(set(degrees_topK + betweennesses_topK + closeness_topK + evcent_topK)) # just to get a unique list
 

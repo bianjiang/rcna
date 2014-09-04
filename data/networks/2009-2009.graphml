@@ -109,7 +109,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">173</data>
       <data key="v_department">pharmacology</data>
-      <data key="v_centrality_leader">48</data>
+      <data key="v_centrality_leader">3</data>
       <data key="v_id">n10</data>
     </node>
     <node id="n11">
@@ -118,7 +118,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">135</data>
       <data key="v_department">pathology</data>
-      <data key="v_centrality_leader">41</data>
+      <data key="v_centrality_leader">12</data>
       <data key="v_id">n11</data>
     </node>
     <node id="n12">
@@ -127,7 +127,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">346</data>
       <data key="v_department">geriatrics</data>
-      <data key="v_centrality_leader">50</data>
+      <data key="v_centrality_leader">1</data>
       <data key="v_id">n12</data>
     </node>
     <node id="n13">
@@ -136,7 +136,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">15</data>
       <data key="v_department">dietetics and nutrition</data>
-      <data key="v_centrality_leader">39</data>
+      <data key="v_centrality_leader">10</data>
       <data key="v_id">n13</data>
     </node>
     <node id="n14">
@@ -145,7 +145,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">324</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">37</data>
+      <data key="v_centrality_leader">16</data>
       <data key="v_id">n14</data>
     </node>
     <node id="n15">
@@ -154,7 +154,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">293</data>
       <data key="v_department">dermatology</data>
-      <data key="v_centrality_leader">33</data>
+      <data key="v_centrality_leader">14</data>
       <data key="v_id">n15</data>
     </node>
     <node id="n16">
@@ -163,7 +163,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">230</data>
       <data key="v_department">student financial aid</data>
-      <data key="v_centrality_leader">35</data>
+      <data key="v_centrality_leader">18</data>
       <data key="v_id">n16</data>
     </node>
     <node id="n17">
@@ -199,7 +199,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">303</data>
       <data key="v_department">psychiatry</data>
-      <data key="v_centrality_leader">5</data>
+      <data key="v_centrality_leader">45</data>
       <data key="v_id">n20</data>
     </node>
     <node id="n21">
@@ -217,7 +217,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">288</data>
       <data key="v_department">medical genetics</data>
-      <data key="v_centrality_leader">45</data>
+      <data key="v_centrality_leader">6</data>
       <data key="v_id">n22</data>
     </node>
     <node id="n23">
@@ -226,7 +226,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">17</data>
       <data key="v_department">pathology</data>
-      <data key="v_centrality_leader">40</data>
+      <data key="v_centrality_leader">11</data>
       <data key="v_id">n23</data>
     </node>
     <node id="n24">
@@ -262,7 +262,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">377</data>
       <data key="v_department">urology</data>
-      <data key="v_centrality_leader">34</data>
+      <data key="v_centrality_leader">17</data>
       <data key="v_id">n27</data>
     </node>
     <node id="n28">
@@ -271,7 +271,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">22</data>
       <data key="v_department">college of public health</data>
-      <data key="v_centrality_leader">8</data>
+      <data key="v_centrality_leader">43</data>
       <data key="v_id">n28</data>
     </node>
     <node id="n29">
@@ -361,7 +361,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">174</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">32</data>
+      <data key="v_centrality_leader">19</data>
       <data key="v_id">n38</data>
     </node>
     <node id="n39">
@@ -424,7 +424,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">13</data>
       <data key="v_department">family and preventive medicine</data>
-      <data key="v_centrality_leader">47</data>
+      <data key="v_centrality_leader">4</data>
       <data key="v_id">n45</data>
     </node>
     <node id="n46">
@@ -433,7 +433,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">55</data>
       <data key="v_department">college of nursing  -  dean&apos;s office</data>
-      <data key="v_centrality_leader">46</data>
+      <data key="v_centrality_leader">5</data>
       <data key="v_id">n46</data>
     </node>
     <node id="n47">
@@ -442,7 +442,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">402</data>
       <data key="v_department">physiology &amp;amp; biophysics</data>
-      <data key="v_centrality_leader">43</data>
+      <data key="v_centrality_leader">8</data>
       <data key="v_id">n47</data>
     </node>
     <node id="n48">
@@ -640,7 +640,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">374</data>
       <data key="v_department">neurology</data>
-      <data key="v_centrality_leader">44</data>
+      <data key="v_centrality_leader">7</data>
       <data key="v_id">n69</data>
     </node>
     <node id="n70">
@@ -649,7 +649,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">236</data>
       <data key="v_department">pharmacology</data>
-      <data key="v_centrality_leader">2</data>
+      <data key="v_centrality_leader">49</data>
       <data key="v_id">n70</data>
     </node>
     <node id="n71">
@@ -766,7 +766,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">283</data>
       <data key="v_department">pathology</data>
-      <data key="v_centrality_leader">10</data>
+      <data key="v_centrality_leader">41</data>
       <data key="v_id">n83</data>
     </node>
     <node id="n84">
@@ -793,7 +793,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">12</data>
       <data key="v_department">surgery</data>
-      <data key="v_centrality_leader">12</data>
+      <data key="v_centrality_leader">39</data>
       <data key="v_id">n86</data>
     </node>
     <node id="n87">
@@ -838,7 +838,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">155</data>
       <data key="v_department">anesthesiology</data>
-      <data key="v_centrality_leader">49</data>
+      <data key="v_centrality_leader">2</data>
       <data key="v_id">n91</data>
     </node>
     <node id="n92">
@@ -946,7 +946,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">365</data>
       <data key="v_department">neurobiology &amp;amp; developmental science</data>
-      <data key="v_centrality_leader">25</data>
+      <data key="v_centrality_leader">26</data>
       <data key="v_id">n103</data>
     </node>
     <node id="n104">
@@ -1117,7 +1117,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">224</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">24</data>
+      <data key="v_centrality_leader">30</data>
       <data key="v_id">n122</data>
     </node>
     <node id="n123">
@@ -1261,7 +1261,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">272</data>
       <data key="v_department">ahec - south arkansas</data>
-      <data key="v_centrality_leader">21</data>
+      <data key="v_centrality_leader">36</data>
       <data key="v_id">n138</data>
     </node>
     <node id="n139">
@@ -1270,7 +1270,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">375</data>
       <data key="v_department">emergency medical sciences</data>
-      <data key="v_centrality_leader">19</data>
+      <data key="v_centrality_leader">29</data>
       <data key="v_id">n139</data>
     </node>
     <node id="n140">
@@ -1279,7 +1279,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">168</data>
       <data key="v_department">neurobiology &amp;amp; developmental science</data>
-      <data key="v_centrality_leader">20</data>
+      <data key="v_centrality_leader">31</data>
       <data key="v_id">n140</data>
     </node>
     <node id="n141">
@@ -1288,7 +1288,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">157</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">17</data>
+      <data key="v_centrality_leader">32</data>
       <data key="v_id">n141</data>
     </node>
     <node id="n142">
@@ -1297,7 +1297,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">54</data>
       <data key="v_department">pediatrics</data>
-      <data key="v_centrality_leader">13</data>
+      <data key="v_centrality_leader">37</data>
       <data key="v_id">n142</data>
     </node>
     <node id="n143">
@@ -1306,7 +1306,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">295</data>
       <data key="v_department">college of public health</data>
-      <data key="v_centrality_leader">14</data>
+      <data key="v_centrality_leader">34</data>
       <data key="v_id">n143</data>
     </node>
     <node id="n144">
@@ -1315,7 +1315,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">73</data>
       <data key="v_department">geriatrics</data>
-      <data key="v_centrality_leader">15</data>
+      <data key="v_centrality_leader">40</data>
       <data key="v_id">n144</data>
     </node>
     <node id="n145">
@@ -1324,7 +1324,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">9</data>
       <data key="v_department">radiation oncology</data>
-      <data key="v_centrality_leader">11</data>
+      <data key="v_centrality_leader">38</data>
       <data key="v_id">n145</data>
     </node>
     <node id="n146">
@@ -1333,7 +1333,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">61</data>
       <data key="v_department">college of nursing  -  dean&apos;s office</data>
-      <data key="v_centrality_leader">29</data>
+      <data key="v_centrality_leader">22</data>
       <data key="v_id">n146</data>
     </node>
     <node id="n147">
@@ -1342,7 +1342,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">215</data>
       <data key="v_department">pediatrics</data>
-      <data key="v_centrality_leader">23</data>
+      <data key="v_centrality_leader">27</data>
       <data key="v_id">n147</data>
     </node>
     <node id="n148">
@@ -1351,7 +1351,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">260</data>
       <data key="v_department">pediatrics</data>
-      <data key="v_centrality_leader">6</data>
+      <data key="v_centrality_leader">40</data>
       <data key="v_id">n148</data>
     </node>
     <node id="n149">
@@ -1360,7 +1360,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">11</data>
       <data key="v_department">ahec - central office</data>
-      <data key="v_centrality_leader">17</data>
+      <data key="v_centrality_leader">38</data>
       <data key="v_id">n149</data>
     </node>
     <node id="n150">
@@ -1396,7 +1396,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">219</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">31</data>
+      <data key="v_centrality_leader">20</data>
       <data key="v_id">n153</data>
     </node>
     <node id="n154">
@@ -1684,7 +1684,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">57</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">36</data>
+      <data key="v_centrality_leader">15</data>
       <data key="v_id">n185</data>
     </node>
     <node id="n186">
@@ -1693,7 +1693,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">221</data>
       <data key="v_department">geriatrics</data>
-      <data key="v_centrality_leader">42</data>
+      <data key="v_centrality_leader">9</data>
       <data key="v_id">n186</data>
     </node>
     <node id="n187">
@@ -1702,7 +1702,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">192</data>
       <data key="v_department">pharmacology</data>
-      <data key="v_centrality_leader">27</data>
+      <data key="v_centrality_leader">24</data>
       <data key="v_id">n187</data>
     </node>
     <node id="n188">
@@ -1711,7 +1711,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">351</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">30</data>
+      <data key="v_centrality_leader">21</data>
       <data key="v_id">n188</data>
     </node>
     <node id="n189">
@@ -1837,7 +1837,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">20</data>
       <data key="v_department">physiology &amp;amp; biophysics</data>
-      <data key="v_centrality_leader">22</data>
+      <data key="v_centrality_leader">28</data>
       <data key="v_id">n202</data>
     </node>
     <node id="n203">
@@ -1909,7 +1909,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">217</data>
       <data key="v_department">college of nursing  -  dean&apos;s office</data>
-      <data key="v_centrality_leader">38</data>
+      <data key="v_centrality_leader">13</data>
       <data key="v_id">n210</data>
     </node>
     <node id="n211">
@@ -2026,7 +2026,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">5</data>
       <data key="v_department">radiation oncology</data>
-      <data key="v_centrality_leader">2</data>
+      <data key="v_centrality_leader">48</data>
       <data key="v_id">n223</data>
     </node>
     <node id="n224">
@@ -2035,7 +2035,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">397</data>
       <data key="v_department">family and preventive medicine</data>
-      <data key="v_centrality_leader">1</data>
+      <data key="v_centrality_leader">50</data>
       <data key="v_id">n224</data>
     </node>
     <node id="n225">
@@ -2188,7 +2188,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">394</data>
       <data key="v_department">otolaryngology</data>
-      <data key="v_centrality_leader">40</data>
+      <data key="v_centrality_leader">11</data>
       <data key="v_id">n241</data>
     </node>
     <node id="n242">
@@ -2206,7 +2206,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">348</data>
       <data key="v_department">medical humanities</data>
-      <data key="v_centrality_leader">22</data>
+      <data key="v_centrality_leader">28</data>
       <data key="v_id">n243</data>
     </node>
     <node id="n244">
@@ -2215,7 +2215,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">32</data>
       <data key="v_department">medicine</data>
-      <data key="v_centrality_leader">18</data>
+      <data key="v_centrality_leader">33</data>
       <data key="v_id">n244</data>
     </node>
     <node id="n245">
@@ -2278,7 +2278,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">143</data>
       <data key="v_department">myeloma research center</data>
-      <data key="v_centrality_leader">9</data>
+      <data key="v_centrality_leader">42</data>
       <data key="v_id">n251</data>
     </node>
     <node id="n252">
@@ -2413,7 +2413,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">4</data>
       <data key="v_department">radiation oncology</data>
-      <data key="v_centrality_leader">48</data>
+      <data key="v_centrality_leader">3</data>
       <data key="v_id">n266</data>
     </node>
     <node id="n267">
@@ -2422,7 +2422,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">190</data>
       <data key="v_department">geriatrics</data>
-      <data key="v_centrality_leader">28</data>
+      <data key="v_centrality_leader">23</data>
       <data key="v_id">n267</data>
     </node>
     <node id="n268">
@@ -2431,7 +2431,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">289</data>
       <data key="v_department">myeloma research center</data>
-      <data key="v_centrality_leader">7</data>
+      <data key="v_centrality_leader">44</data>
       <data key="v_id">n268</data>
     </node>
     <node id="n269">
@@ -3187,7 +3187,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">226</data>
       <data key="v_department">toxicology</data>
-      <data key="v_centrality_leader">26</data>
+      <data key="v_centrality_leader">25</data>
       <data key="v_id">n352</data>
     </node>
     <node id="n353">
@@ -3205,7 +3205,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">156</data>
       <data key="v_department">pharmacology</data>
-      <data key="v_centrality_leader">16</data>
+      <data key="v_centrality_leader">35</data>
       <data key="v_id">n354</data>
     </node>
     <node id="n355">
@@ -3448,7 +3448,7 @@
       <data key="v_role">Principal Investigator</data>
       <data key="v_index_">315</data>
       <data key="v_department">biomedical informatics</data>
-      <data key="v_centrality_leader">4</data>
+      <data key="v_centrality_leader">46</data>
       <data key="v_id">n381</data>
     </node>
     <node id="n382">
@@ -3457,7 +3457,7 @@
       <data key="v_role">Co-Investigator</data>
       <data key="v_index_">38</data>
       <data key="v_department">psychiatry</data>
-      <data key="v_centrality_leader">3</data>
+      <data key="v_centrality_leader">47</data>
       <data key="v_id">n382</data>
     </node>
     <node id="n383">
