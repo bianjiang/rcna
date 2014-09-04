@@ -45,7 +45,7 @@
         connected: false,
         prediction: {
             on: false,
-            val: 0.01
+            val: 1
         }
     };
 
@@ -523,10 +523,13 @@
                             var factor = 1.0;
 
                             if(isCentralityLeader(d)) {
-                                factor = parseFloat(11 - d.centrality_leader) / 5;
+                                factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
+
                             }
+
                             return opts.r * factor;
                         }else{
+
                             return ($.inArray(d['name'], tracked_nodes) > -1 || d.focused) ? opts.r * 1.5:opts.r;
                         }
                         //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
@@ -565,7 +568,9 @@
                             var factor = 1.0;
 
                             if(isCentralityLeader(d)) {
-                                factor = parseFloat(11 - d.centrality_leader) / 5;
+                                factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
+
+                                //console.log(parseFloat(11 - d.centrality_leader));
                             }
                             return opts.r * factor;
                             //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
@@ -707,6 +712,12 @@
 
                         update();
                     });
+                }else{
+                    setTimeout(function(){
+
+                        replace_graph(graph, $.extend(true, {}, current_complete_graph));
+                        update();
+                    }, 200);
                 }
             });
 
@@ -721,6 +732,12 @@
 
                         update();
                     });
+                }else{
+                    setTimeout(function(){
+
+                        replace_graph(graph, $.extend(true, {}, current_complete_graph));
+                        update();
+                    }, 200);
                 }
 
             });
