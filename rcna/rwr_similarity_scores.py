@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 import igraph
 import json
+import numpy as np
 
 from misc.utils import root_folder
 from network_analysis.utils import load_network_for
@@ -40,6 +41,8 @@ def rwr_scores(budgetYears):
     ResearchCollaborationNetwork.simplify(g)
 
     logger.info(g.summary())
+
+    adj = np.array(g.get_adjacency(igraph.GET_ADJACENCY_BOTH).data)
 
     links = []
     m = len(g.vs)
@@ -69,9 +72,9 @@ def rwr_scores(budgetYears):
 
 if __name__ == '__main__':
 
-    for budgetYear in range(2006, 2013):
-        rwr_scores(range(budgetYear, budgetYear + 1))
+    # for budgetYear in range(2006, 2013):
+    #     rwr_scores(range(budgetYear, budgetYear + 1))
 
-    rwr_scores(range(2006, 2010))
-    rwr_scores(range(2010, 2013))
+    # rwr_scores(range(2006, 2010))
+    # rwr_scores(range(2010, 2013))
     rwr_scores(range(2006, 2013))
