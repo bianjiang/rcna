@@ -917,7 +917,7 @@
             }
 
 
-            $a = $('<a href="/?#' + current + '" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function () {
+            $a = $('<a href="?#' + current + '" style="display:inline-block;padding-right:0px;" tag="' + current + '">' + parseNavText(current) + '</a>').click(function () {
                 var tag = $(this).attr('tag');
                 $('#canvas > svg').hide('slow', function () {
                     //$('#canvas > svg').remove();
@@ -937,7 +937,7 @@
 
             $.each(ditems, function (menu) {
                 $action_li = $('<li></li>');
-                $action_a = $('<a href="/?#' + current + '-' + menu + '" tag="' + current + '-' + menu + '">' + ditems[menu] + '</a>').click(function () {
+                $action_a = $('<a href="?#' + current + '-' + menu + '" tag="' + current + '-' + menu + '">' + ditems[menu] + '</a>').click(function () {
                     var tag = $(this).attr('tag');
                     $('#canvas > svg').hide('slow', function () {
                         //$('#canvas > svg').remove();
