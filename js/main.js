@@ -42,7 +42,8 @@
 
     //$('#opt_drilling_prediction').tooltip();
 
-    var user_options = {        
+    var user_options = {
+        show_id: false,        
         highlight_ctsa: true,
         centrality_leader: {
             on: false,
@@ -573,7 +574,7 @@
                         return d.type
                     });
 
-                var show_id = true;
+                //var show_id = false;
                 // //  // only show a label if the node is being tracked
                 // // if ($.inArray(d['name'], tracked_nodes) > -1) {
                 // //     show_id = true;
@@ -601,7 +602,7 @@
                     .text(function (d) {
                         // console.log("here.........");
                         //console.log(d);
-                        return show_id?d.name:'';
+                        return user_options.show_id?d.name:'';
                         //return "here";
                     });
 
@@ -869,6 +870,13 @@
                 $('#opt_tooltip').attr("checked", false);
                 user_options.tooltip = false;
             }
+            setTimeout(function(){
+                draw_graph($.extend(true, {}, current_complete_graph));
+            }, 200);
+        });
+
+        $('#opt_show_id').click(function(){
+            user_options.show_id = $(this).prop('checked');
             setTimeout(function(){
                 draw_graph($.extend(true, {}, current_complete_graph));
             }, 200);
