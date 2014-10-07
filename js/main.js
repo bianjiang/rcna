@@ -34,11 +34,20 @@
           }
         });
 
+    $('#centrality_leader_top_n').slider({
+          formater: function(value) {
+            return 'Top '+ value + ' Investigators';
+          }
+        });
+
     //$('#opt_drilling_prediction').tooltip();
 
     var user_options = {        
         highlight_ctsa: true,
-        centrality_leader: false,
+        centrality_leader: {
+            on: false,
+            val: 10
+        },
         tracking: false,
         drilling: true,
         tooltip: true,
@@ -73,7 +82,7 @@
     var tracked_node_color = "#FF0000";
 
     var isCentralityLeader = function isCentralityLeader(node){
-        return (node.centrality_leader > 0 && node.centrality_leader < 11);
+        return (node.centrality_leader > 0 && node.centrality_leader <= user_options.centrality_leader.val);
     }
 
     var getColor = function getColor(node, check_tracked_nodes) {
@@ -94,7 +103,7 @@
             }
         }
 
-        if(isCentralityLeader(node) && user_options.centrality_leader){
+        if(isCentralityLeader(node) && user_options.centrality_leader.on){
             c = '#ADFF2F';
         }
         //console.log(colors(c));
@@ -128,8 +137,11 @@
             color = tracked_node_color;
             size = original_size * 1.5;
         }
+
         node_element.style("fill",color);
-        node_element.attr("r",size);
+        if(!user_options.centrality_leader.on) {
+            node_element.attr("r",size);
+        }
         render_tracked_nodes_sidebar();
     };
 
@@ -500,6 +512,7 @@
                         $content.append(info_row('Closeness', d['closeness']));
                         $content.append(info_row('Eigen Centrality', d['evcent']));
                         $content.append(info_row('Clustering Coeff', d['clustering_coefficient']));
+                        $content.append(info_row('Centrality Leader Ranking', (d['centrality_leader'] > 0 ? d['centrality_leader'] : 'N/A')));
 
                         return {
                             type: "popover",
@@ -519,13 +532,14 @@
 
                 circle.attr("r", function (d) {
 
-                    if(user_options.centrality_leader){
+                    if(user_options.centrality_leader.on){
                         var factor = 1.0;
 
                         if(isCentralityLeader(d)) {
-                            factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
-
+                            factor = 1 + parseFloat(user_options.centrality_leader.val - d.centrality_leader + 1) / user_options.centrality_leader.val;
+                            console.log(factor);
                         }
+
 
                         return opts.r * factor;
                     }else{
@@ -653,21 +667,20 @@
                 });
             });
 
-            $('#opt_centrality_leader').click(function(){
-                user_options.centrality_leader = $(this).prop('checked');
+            var toggle_centrality_leader = function toggle_centrality_leader() {
                 circle.style("fill", function (node) {
                     return getColor(node, true);
                 });
-                if(user_options.centrality_leader){
+                if(user_options.centrality_leader.on){
 
                     circle.attr("r", function (d) {
                         var factor = 1.0;
 
                         
                         if(isCentralityLeader(d)) {
-                            factor = 1 + parseFloat(11 - d.centrality_leader) / 10;
+                            factor = 1 + parseFloat(user_options.centrality_leader.val - d.centrality_leader + 1) / user_options.centrality_leader.val;
                             //console.log(d);
-                            //console.log(parseFloat(11 - d.centrality_leader));
+                            console.log(factor);
                         }
                         return opts.r * factor;
                         //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
@@ -681,7 +694,18 @@
                         //return d.ctsa == 1 && d.role == 'Principal Investigator'?opts.r * 1.5:opts.r; // need to figure out a better way to do this...
                     });
                 }
+            };
+
+            $('#opt_centrality_leader').click(function(){
+                user_options.centrality_leader.on = $(this).prop('checked');
                 
+                toggle_centrality_leader();
+            });
+
+            $('#centrality_leader_top_n').on('slide', function(e){
+                user_options.centrality_leader.val = parseFloat(e.value);
+
+                toggle_centrality_leader();
             });
 
             $('#force-gravity').on('slide', function(e){
@@ -705,9 +729,7 @@
                 force.linkDistance(opts.linkDistance).start();
             });
 
-            $('#opt_show_prediction').click(function(){
-                user_options.prediction.on = $(this).prop('checked');
-
+            var toggle_show_prediction = function toggle_show_prediction() {
                 if(user_options.prediction.on){
                     d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
 
@@ -722,26 +744,19 @@
                         update();
                     }, 200);
                 }
+            };
+
+            $('#opt_show_prediction').click(function(){
+                user_options.prediction.on = $(this).prop('checked');
+
+                toggle_show_prediction();
+                
             });
 
             $('#prediction_top_n').on('slideStop', function(e){
                 user_options.prediction.val = parseFloat(e.value);
 
-                //console.log(user_options);
-                if(user_options.prediction.on){
-                    d3.json('data/' + getNetworkRoot(activeNetwork) + "-rwr.json", function (error, rwrs) {
-
-                        add_predicted_links(graph, current_complete_graph, rwrs, user_options.prediction.val);
-
-                        update();
-                    });
-                }else{
-                    setTimeout(function(){
-
-                        replace_graph(graph, $.extend(true, {}, current_complete_graph));
-                        update();
-                    }, 200);
-                }
+                toggle_show_prediction();
 
             });
 
